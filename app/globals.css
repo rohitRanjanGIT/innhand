@@ -1,0 +1,20 @@
+:root {
+  --font-display: var(--font-cormorant), 'Cormorant Garamond', serif;
+  --font-body: var(--font-jost), 'Jost', sans-serif;
+}
+
+body { margin: 0; background: #F7F2EC; }
+a { color: #2A2238; }
+a:hover { color: #B52D6F; }
+
+.ih-link { text-decoration: none; transition: color .25s ease; }
+.ih-btn { transition: background .3s ease, color .3s ease, border-color .3s ease; }
+.ih-btn-primary:hover { background: #2A2238 !important; color: #F7F2EC !important; }
+.ih-btn-ghost:hover { background: #2A2238 !important; color: #F7F2EC !important; }
+.ih-icon-btn:hover { background: rgba(247, 242, 236, .12) !important; }
+.ih-foot a { color: #D9D1E6; text-decoration: none; }
+.ih-foot a:hover { color: #FFFFFF; }
+
+@media (max-width: 720px) {
+  .ih-hide-sm { display: none !important; }
+}

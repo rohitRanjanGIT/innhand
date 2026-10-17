@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Innhand Creations — Home</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&amp;family=Jost:wght@300;400;500&amp;display=swap">
+<style>
+body{margin:0;background:#F7F2EC}
+a{color:#2A2238}a:hover{color:#B52D6F}
+.ih-link{text-decoration:none;transition:color .25s ease}
+.ih-btn{transition:background .3s ease,color .3s ease,border-color .3s ease}
+.ih-btn-primary:hover{background:#2A2238 !important;color:#F7F2EC !important}
+.ih-btn-ghost:hover{background:#2A2238 !important;color:#F7F2EC !important}
+.ih-icon-btn:hover{background:rgba(247,242,236,.12) !important}
+.ih-tile:hover .ih-tile-art{transform:scale(1.03)}
+.ih-tile-art{transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.ih-foot a{color:#D9D1E6;text-decoration:none}.ih-foot a:hover{color:#FFFFFF}
+@media (max-width:720px){.ih-hide-sm{display:none !important}}
+</style>
+
+</head>
+<body>
+<div style="font-family: 'Jost', sans-serif; font-weight: 300; color: #2A2238; background: #F7F2EC; min-height: 100vh">
+
+  <!-- Announcement -->
+  <div style="background: #EFE6DC; color: #2A2238; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; text-align: center; padding: 10px 16px">Hand-poured in small batches · Custom colours on every piece</div>
+
+  <!-- Header -->
+  <header style="background: #32255D; color: #F7F2EC; position: sticky; top: 0; z-index: 20">
+    <div style="max-width: 1320px; margin: 0 auto; padding: 0 clamp(16px, 3vw, 40px); height: 84px; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 16px">
+      <div style="display: flex; align-items: center; gap: 4px">
+        <button class="ih-icon-btn ih-btn" data-open-menu aria-controls="ih-menu" aria-expanded="false" aria-label="Open menu" style="background: transparent; border: 0; color: #F7F2EC; height: 44px; padding: 0 12px; border-radius: 22px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-family: 'Jost', sans-serif; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M3 7h18M3 12h12M3 17h18"/></svg>
+          <span class="ih-hide-sm">Shop</span>
+        </button>
+      </div>
+      <a href="index.html" aria-label="Innhand Creations home" style="display: block; line-height: 0">
+        <img src="assets/logo-word.png" alt="Innhand Creations" style="height: 50px; width: auto; display: block">
+      </a>
+      <div style="display: flex; justify-content: flex-end; align-items: center; gap: 2px">
+        <button class="ih-icon-btn ih-btn" aria-label="Search" style="background: transparent; border: 0; color: #F7F2EC; width: 44px; height: 44px; border-radius: 22px; display: grid; place-items: center; cursor: pointer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        </button>
+        <button class="ih-icon-btn ih-btn" aria-label="Wishlist" style="background: transparent; border: 0; color: #F7F2EC; width: 44px; height: 44px; border-radius: 22px; display: grid; place-items: center; cursor: pointer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.4a4.3 4.3 0 0 1 7.5 2.4C19.5 15.4 12 20 12 20z"/></svg>
+        </button>
+        <button class="ih-icon-btn ih-btn" aria-label="Cart, 2 items" style="background: transparent; border: 0; color: #F7F2EC; width: 44px; height: 44px; border-radius: 22px; display: grid; place-items: center; cursor: pointer; position: relative">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+          <span style="position: absolute; top: 6px; right: 5px; min-width: 16px; height: 16px; border-radius: 8px; background: #B52D6F; color: #FFFFFF; font-size: 10px; font-weight: 500; display: grid; place-items: center; padding: 0 3px; box-sizing: border-box">2</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Side menu -->
+  <div id="ih-menu" hidden>
+    <div style="position: fixed; inset: 0; z-index: 60; display: flex">
+      <nav aria-label="Shop menu" style="width: min(400px, 88vw); height: 100%; overflow-y: auto; background: #F7F2EC; box-shadow: 24px 0 60px rgba(42,34,56,.18); padding: 28px 32px 40px; box-sizing: border-box; display: flex; flex-direction: column; gap: 28px">
+        <div style="display: flex; justify-content: space-between; align-items: center">
+          <span style="font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: #5F566B">Menu</span>
+          <button data-close-menu aria-label="Close menu" class="ih-btn" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #D9CFC3; background: transparent; color: #2A2238; display: grid; place-items: center; cursor: pointer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <span style="font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 400; line-height: 1.1">Shop</span>
+          <a class="ih-link" href="#" style="font-size: 14px; color: #5F566B">View all pieces</a>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 18px">
+          <span style="font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: #B52D6F; font-weight: 500">By Category</span>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <a class="ih-link" href="#" style="font-family: 'Cormorant Garamond', serif; font-size: 24px">Home Décor</a>
+            <div style="display: flex; flex-direction: column; gap: 6px; padding-left: 14px; border-left: 1px solid #DCD2C6">
+              <a class="ih-link" href="#" style="font-size: 15px">Planters</a>
+              <a class="ih-link" href="#" style="font-size: 15px">Vases</a>
+              <a class="ih-link" href="#" style="font-size: 15px">Tealight holders</a>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <a class="ih-link" href="#" style="font-family: 'Cormorant Garamond', serif; font-size: 24px">Gifting</a>
+            <div style="display: flex; flex-direction: column; gap: 6px; padding-left: 14px; border-left: 1px solid #DCD2C6">
+              <a class="ih-link" href="#" style="font-size: 15px">Trinket trays</a>
+              <a class="ih-link" href="#" style="font-size: 15px">Jewellery boxes</a>
+            </div>
+          </div>
+        </div>
+
+        <div style="height: 1px; background: #E2D9CE"></div>
+
+        <div style="display: flex; flex-direction: column; gap: 18px">
+          <span style="font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: #B52D6F; font-weight: 500">By Occasion</span>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <a class="ih-link" href="#" style="font-family: 'Cormorant Garamond', serif; font-size: 24px">Diwali Gifting</a>
+            <div style="display: flex; flex-direction: column; gap: 6px; padding-left: 14px; border-left: 1px solid #DCD2C6">
+              <a class="ih-link" href="#" style="font-size: 15px">Candles with trays</a>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <a class="ih-link" href="#" style="font-family: 'Cormorant Garamond', serif; font-size: 24px">Housewarming</a>
+            <div style="display: flex; flex-direction: column; gap: 6px; padding-left: 14px; border-left: 1px solid #DCD2C6">
+              <a class="ih-link" href="#" style="font-size: 15px">Planters</a>
+              <a class="ih-link" href="#" style="font-size: 15px">Trays</a>
+              <a class="ih-link" href="#" style="font-size: 15px">Candles</a>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <a class="ih-link" href="#" style="font-family: 'Cormorant Garamond', serif; font-size: 24px">Corporate &amp; Hotels</a>
+            <div style="display: flex; flex-direction: column; gap: 6px; padding-left: 14px; border-left: 1px solid #DCD2C6">
+              <a class="ih-link" href="#" style="font-size: 15px">Test tube planters</a>
+              <a class="ih-link" href="#" style="font-size: 15px">Coaster sets</a>
+            </div>
+          </div>
+        </div>
+
+        <div style="height: 1px; background: #E2D9CE"></div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <a class="ih-link" href="our-story.html" style="font-size: 15px">Our Story</a>
+          <a class="ih-link" href="#custom" style="font-size: 15px">Custom &amp; Bulk Orders</a>
+          <a class="ih-link" href="#footer" style="font-size: 15px">Contact Us</a>
+        </div>
+      </nav>
+      <button data-close-menu aria-label="Close menu" style="flex: 1; border: 0; background: rgba(42,34,56,.42); cursor: pointer"></button>
+    </div>
+  </div>
+
+  <!-- Hero: top products -->
+  <section aria-label="Top products" style="padding: clamp(16px, 2.5vw, 32px) clamp(16px, 3vw, 40px) 0">
+    <div style="max-width: 1320px; margin: 0 auto; display: grid">
+      
+        <div class="ih-slide" aria-hidden="false" style="grid-area: 1 / 1; display: flex; flex-wrap: wrap; background: #FFFFFF; border-radius: 4px; overflow: hidden; opacity: 1; visibility: visible; transition: opacity 1s ease, visibility 1s ease">
+          <div style="flex: 1 1 380px; min-width: 0; padding: clamp(32px, 5vw, 72px); box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; gap: 22px; background: #F7F2EC">
+            <span style="font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase; color: #B52D6F; font-weight: 500">Top pick · 01</span>
+            <h1 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(44px, 5.4vw, 78px); line-height: 1.02; letter-spacing: -0.01em">Flower Vases</h1>
+            <p style="margin: 0; font-size: 17px; line-height: 1.65; color: #5F566B; max-width: 380px">A pair of sculptural vases, hand-poured in the colours you choose.</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; padding-top: 8px">
+              <a href="#" class="ih-btn ih-btn-primary" style="background: #B52D6F; color: #FFFFFF; text-decoration: none; font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 400; padding: 0 30px; height: 52px; display: inline-flex; align-items: center; border-radius: 26px">Shop now</a>
+              <a href="#" class="ih-btn ih-btn-ghost" style="background: transparent; color: #2A2238; border: 1px solid #2A2238; text-decoration: none; font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 400; padding: 0 30px; height: 52px; display: inline-flex; align-items: center; border-radius: 26px; box-sizing: border-box">Explore sets</a>
+            </div>
+          </div>
+          <div style="flex: 1.45 1 480px; min-width: 0; min-height: clamp(380px, 46vw, 640px); background: #DCDFD1; position: relative; overflow: hidden; display: grid; place-items: center">
+            <div class="ih-slide-art" style="transform: scale(1); transition: transform 6s ease-out; display: grid; place-items: center">
+              
+                <svg width="320" height="320" viewBox="0 0 320 320" fill="none" stroke="#32255D" stroke-opacity=".38" stroke-width="1.2" aria-hidden="true"><path d="M110 70h40M114 70c0 22-26 40-26 92 0 44 18 84 42 84s42-40 42-84c0-52-26-70-26-92"/><path d="M196 120h34M200 120c0 16-18 30-18 66 0 34 14 60 30 60s30-26 30-60c0-36-18-50-18-66"/><path d="M60 246h200"/></svg>
+              
+              
+              
+            </div>
+            <span style="position: absolute; left: 20px; bottom: 20px; background: rgba(247,242,236,.9); color: #2A2238; font-size: 12px; letter-spacing: 0.06em; padding: 8px 14px; border-radius: 16px">Photo · Flower vases, set of 2</span>
+          </div>
+        </div>
+      
+        <div class="ih-slide" aria-hidden="true" style="grid-area: 1 / 1; display: flex; flex-wrap: wrap; background: #FFFFFF; border-radius: 4px; overflow: hidden; opacity: 0; visibility: hidden; transition: opacity 1s ease, visibility 1s ease">
+          <div style="flex: 1 1 380px; min-width: 0; padding: clamp(32px, 5vw, 72px); box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; gap: 22px; background: #F7F2EC">
+            <span style="font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase; color: #B52D6F; font-weight: 500">Top pick · 02</span>
+            <h1 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(44px, 5.4vw, 78px); line-height: 1.02; letter-spacing: -0.01em">Leaf Heart Tray</h1>
+            <p style="margin: 0; font-size: 17px; line-height: 1.65; color: #5F566B; max-width: 380px">A heart-shaped tray with a leaf imprint, for rings, keys and little keepsakes.</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; padding-top: 8px">
+              <a href="#" class="ih-btn ih-btn-primary" style="background: #B52D6F; color: #FFFFFF; text-decoration: none; font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 400; padding: 0 30px; height: 52px; display: inline-flex; align-items: center; border-radius: 26px">Shop now</a>
+              <a href="#" class="ih-btn ih-btn-ghost" style="background: transparent; color: #2A2238; border: 1px solid #2A2238; text-decoration: none; font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 400; padding: 0 30px; height: 52px; display: inline-flex; align-items: center; border-radius: 26px; box-sizing: border-box">Explore sets</a>
+            </div>
+          </div>
+          <div style="flex: 1.45 1 480px; min-width: 0; min-height: clamp(380px, 46vw, 640px); background: #EBCFC8; position: relative; overflow: hidden; display: grid; place-items: center">
+            <div class="ih-slide-art" style="transform: scale(1.06); transition: transform 6s ease-out; display: grid; place-items: center">
+              
+              
+                <svg width="320" height="320" viewBox="0 0 320 320" fill="none" stroke="#32255D" stroke-opacity=".38" stroke-width="1.2" aria-hidden="true"><path d="M160 250S64 196 64 130c0-34 26-56 54-56 20 0 34 10 42 26 8-16 22-26 42-26 28 0 54 22 54 56 0 66-96 120-96 120z"/><path d="M160 236V112M160 150l-34-22M160 180l-42-24M160 150l34-22M160 180l42-24"/></svg>
+              
+              
+            </div>
+            <span style="position: absolute; left: 20px; bottom: 20px; background: rgba(247,242,236,.9); color: #2A2238; font-size: 12px; letter-spacing: 0.06em; padding: 8px 14px; border-radius: 16px">Photo · Leaf heart tray</span>
+          </div>
+        </div>
+      
+        <div class="ih-slide" aria-hidden="true" style="grid-area: 1 / 1; display: flex; flex-wrap: wrap; background: #FFFFFF; border-radius: 4px; overflow: hidden; opacity: 0; visibility: hidden; transition: opacity 1s ease, visibility 1s ease">
+          <div style="flex: 1 1 380px; min-width: 0; padding: clamp(32px, 5vw, 72px); box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; gap: 22px; background: #F7F2EC">
+            <span style="font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase; color: #B52D6F; font-weight: 500">Top pick · 03</span>
+            <h1 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(44px, 5.4vw, 78px); line-height: 1.02; letter-spacing: -0.01em">Bubble Tray with Tulip Candles</h1>
+            <p style="margin: 0; font-size: 17px; line-height: 1.65; color: #5F566B; max-width: 380px">A bubble tray paired with tulip candles. A gift that is ready to glow.</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; padding-top: 8px">
+              <a href="#" class="ih-btn ih-btn-primary" style="background: #B52D6F; color: #FFFFFF; text-decoration: none; font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 400; padding: 0 30px; height: 52px; display: inline-flex; align-items: center; border-radius: 26px">Shop now</a>
+              <a href="#" class="ih-btn ih-btn-ghost" style="background: transparent; color: #2A2238; border: 1px solid #2A2238; text-decoration: none; font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 400; padding: 0 30px; height: 52px; display: inline-flex; align-items: center; border-radius: 26px; box-sizing: border-box">Explore sets</a>
+            </div>
+          </div>
+          <div style="flex: 1.45 1 480px; min-width: 0; min-height: clamp(380px, 46vw, 640px); background: #D3DAE0; position: relative; overflow: hidden; display: grid; place-items: center">
+            <div class="ih-slide-art" style="transform: scale(1.06); transition: transform 6s ease-out; display: grid; place-items: center">
+              
+              
+              
+                <svg width="320" height="320" viewBox="0 0 320 320" fill="none" stroke="#32255D" stroke-opacity=".38" stroke-width="1.2" aria-hidden="true"><rect x="50" y="200" width="220" height="44" rx="22"/><circle cx="84" cy="222" r="10"/><circle cx="236" cy="222" r="10"/><path d="M118 200v-44c0-14 10-26 22-30 12 4 22 16 22 30v44M140 126v-14"/><path d="M168 200v-56c0-14 10-26 22-30 12 4 22 16 22 30v56M190 114v-14"/></svg>
+              
+            </div>
+            <span style="position: absolute; left: 20px; bottom: 20px; background: rgba(247,242,236,.9); color: #2A2238; font-size: 12px; letter-spacing: 0.06em; padding: 8px 14px; border-radius: 16px">Photo · Bubble tray with tulip candles</span>
+          </div>
+        </div>
+      
+    </div>
+    <div style="max-width: 1320px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 0 0">
+      <div style="display: flex; align-items: center; gap: 10px">
+        
+          <button class="ih-dot" data-go="0" aria-label="Show Flower Vases" style="width: 44px; height: 44px; border: 0; background: transparent; cursor: pointer; display: grid; place-items: center; padding: 0">
+            <span style="display: block; height: 2px; width: 36px; background: #2A2238; transition: width .5s ease, background .5s ease"></span>
+          </button>
+        
+          <button class="ih-dot" data-go="1" aria-label="Show Leaf Heart Tray" style="width: 44px; height: 44px; border: 0; background: transparent; cursor: pointer; display: grid; place-items: center; padding: 0">
+            <span style="display: block; height: 2px; width: 16px; background: #C9BDB0; transition: width .5s ease, background .5s ease"></span>
+          </button>
+        
+          <button class="ih-dot" data-go="2" aria-label="Show Bubble Tray with Tulip Candles" style="width: 44px; height: 44px; border: 0; background: transparent; cursor: pointer; display: grid; place-items: center; padding: 0">
+            <span style="display: block; height: 2px; width: 16px; background: #C9BDB0; transition: width .5s ease, background .5s ease"></span>
+          </button>
+        
+      </div>
+      <div style="display: flex; align-items: center; gap: 14px">
+        <span id="ih-counter" style="font-family: 'Cormorant Garamond', serif; font-size: 20px; color: #5F566B">01 / 03</span>
+        <button data-prev aria-label="Previous product" class="ih-btn ih-btn-ghost" style="width: 48px; height: 48px; border-radius: 24px; border: 1px solid #CFC4B7; background: transparent; color: #2A2238; display: grid; place-items: center; cursor: pointer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <button data-next aria-label="Next product" class="ih-btn ih-btn-ghost" style="width: 48px; height: 48px; border-radius: 24px; border: 1px solid #CFC4B7; background: transparent; color: #2A2238; display: grid; place-items: center; cursor: pointer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Made by Hand -->
+  <section style="padding: clamp(80px, 9vw, 140px) clamp(16px, 3vw, 40px)">
+    <div style="max-width: 1320px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: clamp(32px, 5vw, 80px); align-items: center">
+      <div style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+        <span style="font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase; color: #B52D6F; font-weight: 500">The process</span>
+        <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(40px, 4.4vw, 64px); line-height: 1.05">Made by <em style="font-style: italic">Hand</em></h2>
+        <p style="margin: 0; font-size: 17px; line-height: 1.7; color: #5F566B; max-width: 400px">Watch a piece come to life. Poured, set and demoulded by hand, one at a time.</p>
+        <div style="display: flex; gap: 28px; padding-top: 12px; flex-wrap: wrap">
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="font-family: 'Cormorant Garamond', serif; font-size: 28px">01</span><span style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #5F566B">Pour</span></div>
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="font-family: 'Cormorant Garamond', serif; font-size: 28px">02</span><span style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #5F566B">Set</span></div>
+          <div style="display: flex; flex-direction: column; gap: 4px"><span style="font-family: 'Cormorant Garamond', serif; font-size: 28px">03</span><span style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #5F566B">Demould</span></div>
+        </div>
+      </div>
+      <div style="flex: 1.7 1 520px; min-width: 0; aspect-ratio: 16 / 9; background: #DCDFD1; border-radius: 4px; position: relative; overflow: hidden; display: grid; place-items: center">
+        <button aria-label="Play the 15-second making-of video" class="ih-btn" style="width: 96px; height: 96px; border-radius: 48px; border: 1px solid rgba(42,34,56,.5); background: rgba(247,242,236,.85); color: #2A2238; display: grid; place-items: center; cursor: pointer">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
+        </button>
+        <span style="position: absolute; left: 20px; bottom: 20px; background: rgba(247,242,236,.9); color: #2A2238; font-size: 12px; letter-spacing: 0.06em; padding: 8px 14px; border-radius: 16px">Video · 15s · pouring &amp; demoulding</span>
+        <span style="position: absolute; right: 20px; top: 20px; color: #2A2238; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase">0:15</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Our Story teaser -->
+  <section style="background: #EFE6DC; padding: clamp(80px, 9vw, 140px) clamp(16px, 3vw, 40px)">
+    <div style="max-width: 1320px; margin: 0 auto; display: flex; flex-wrap: wrap-reverse; gap: clamp(32px, 6vw, 100px); align-items: center">
+      <div style="flex: 1 1 360px; min-width: 0; aspect-ratio: 4 / 5; max-height: 640px; background: #EBCFC8; border-radius: 240px 240px 4px 4px; position: relative; overflow: hidden; display: grid; place-items: center">
+        <svg width="200" height="200" viewBox="0 0 200 200" fill="none" stroke="#32255D" stroke-opacity=".35" stroke-width="1.2" aria-hidden="true"><path d="M58 150c0-30 10-50 24-62l6-34a8 8 0 0 1 16 2l-2 30 10-44a8 8 0 0 1 16 3l-8 42 14-34a8 8 0 0 1 15 6l-14 40c10 6 18 20 18 40 0 22-20 36-48 36s-47-10-47-25z"/></svg>
+        <span style="position: absolute; left: 20px; bottom: 20px; background: rgba(247,242,236,.9); color: #2A2238; font-size: 12px; letter-spacing: 0.06em; padding: 8px 14px; border-radius: 16px">Photo · Nisha in the studio</span>
+      </div>
+      <div style="flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+        <span style="font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase; color: #B52D6F; font-weight: 500">Our Story</span>
+        <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(40px, 4.6vw, 68px); line-height: 1.04">Your idea. Our hands.<br><em style="font-style: italic">One-of-a-kind décor.</em></h2>
+        <p style="margin: 0; font-size: 18px; line-height: 1.7; color: #5F566B; max-width: 460px">Every piece is hand-poured and shaped around you: your colours, your space, your moment.</p>
+        <a href="our-story.html" class="ih-link" style="align-self: flex-start; display: inline-flex; align-items: center; gap: 12px; font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; color: #2A2238; border-bottom: 1px solid #2A2238; padding: 12px 0 8px">Read our story
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Jesmonite -->
+  <section style="background: #32255D; color: #F7F2EC; padding: clamp(80px, 9vw, 140px) clamp(16px, 3vw, 40px)">
+    <div style="max-width: 1320px; margin: 0 auto; display: flex; flex-direction: column; gap: clamp(48px, 6vw, 80px)">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 24px">
+        <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(40px, 4.6vw, 68px); line-height: 1.04; max-width: 720px">Why Jesmonite? <em style="font-style: italic; color: #EBCFC8">Because your home deserves better.</em></h2>
+        <span style="font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase; color: #CFC6DE">The material</span>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 0; border-top: 1px solid rgba(247,242,236,.22)">
+        <div style="flex: 1 1 240px; min-width: 0; padding: 36px 32px 8px 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#EBCFC8" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a6.5 6.5 0 0 0 6.5-6.5c0-4.5-6.5-11.5-6.5-11.5S5.5 10 5.5 14.5A6.5 6.5 0 0 0 12 21z"/></svg>
+          <h3 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 28px; line-height: 1.15">Water-based, earth-kind.</h3>
+          <p style="margin: 0; font-size: 16px; line-height: 1.65; color: #D9D1E6">Made from natural minerals, with no harsh solvents.</p>
+        </div>
+        <div style="flex: 1 1 240px; min-width: 0; padding: 36px 32px 8px 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#EBCFC8" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5 12 4l8 5.5v5L12 20l-8-5.5z"/><path d="M4 9.5 12 15l8-5.5M12 15v5"/></svg>
+          <h3 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 28px; line-height: 1.15">Light, strong, made to last.</h3>
+          <p style="margin: 0; font-size: 16px; line-height: 1.65; color: #D9D1E6">It looks like stone and is built to stay.</p>
+        </div>
+        <div style="flex: 1 1 240px; min-width: 0; padding: 36px 32px 8px 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#EBCFC8" stroke-width="1.2" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a9 9 0 1 1 9-9c0 2.5-2 3.6-3.6 3.6H15.6a1.8 1.8 0 0 0-1.3 3A1.8 1.8 0 0 1 12 21z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10.5" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/></svg>
+          <h3 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 28px; line-height: 1.15">Colour without limits.</h3>
+          <p style="margin: 0; font-size: 16px; line-height: 1.65; color: #D9D1E6">Marble, terrazzo, speckled or matte. You choose.</p>
+        </div>
+        <div style="flex: 1 1 240px; min-width: 0; padding: 36px 32px 8px 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#EBCFC8" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 11V6a2 2 0 0 0-4 0v1M14 10V4a2 2 0 0 0-4 0v2M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.9-6-2.3l-3.6-3.6a2 2 0 0 1 2.8-2.8L7 15"/></svg>
+          <h3 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 28px; line-height: 1.15">One of a kind, always.</h3>
+          <p style="margin: 0; font-size: 16px; line-height: 1.65; color: #D9D1E6">Handmade means no two pieces are twins.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews & Instagram -->
+  <section style="padding: clamp(80px, 9vw, 140px) clamp(16px, 3vw, 40px) clamp(56px, 6vw, 96px)">
+    <div style="max-width: 1320px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+        <div style="display: flex; flex-direction: column; gap: 14px">
+          <span style="font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase; color: #B52D6F; font-weight: 500">Reviews</span>
+          <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(36px, 4vw, 56px); line-height: 1.05">Kind words, <em style="font-style: italic">in their homes</em></h2>
+        </div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 20px">
+        <figure style="margin: 0; flex: 1 1 280px; min-width: 0; aspect-ratio: 4 / 5; background: #FFFFFF; border: 1px solid #E6DDD2; border-radius: 4px; display: flex; flex-direction: column; justify-content: space-between; padding: 28px; box-sizing: border-box">
+          <svg width="32" height="24" viewBox="0 0 32 24" fill="#D7A49A" aria-hidden="true"><path d="M0 24V14C0 6 4 1 12 0l1 4c-4 1-6 4-6 8h6v12zM18 24V14c0-8 4-13 12-14l1 4c-4 1-6 4-6 8h6v12z"/></svg>
+          <span style="font-size: 13px; color: #5F566B; letter-spacing: 0.04em">[Customer review screenshot 1]</span>
+        </figure>
+        <figure style="margin: 0; flex: 1 1 280px; min-width: 0; aspect-ratio: 4 / 5; background: #FFFFFF; border: 1px solid #E6DDD2; border-radius: 4px; display: flex; flex-direction: column; justify-content: space-between; padding: 28px; box-sizing: border-box">
+          <svg width="32" height="24" viewBox="0 0 32 24" fill="#B6BBA3" aria-hidden="true"><path d="M0 24V14C0 6 4 1 12 0l1 4c-4 1-6 4-6 8h6v12zM18 24V14c0-8 4-13 12-14l1 4c-4 1-6 4-6 8h6v12z"/></svg>
+          <span style="font-size: 13px; color: #5F566B; letter-spacing: 0.04em">[Customer review screenshot 2]</span>
+        </figure>
+        <figure style="margin: 0; flex: 1 1 280px; min-width: 0; aspect-ratio: 4 / 5; background: #FFFFFF; border: 1px solid #E6DDD2; border-radius: 4px; display: flex; flex-direction: column; justify-content: space-between; padding: 28px; box-sizing: border-box">
+          <svg width="32" height="24" viewBox="0 0 32 24" fill="#A4B1BA" aria-hidden="true"><path d="M0 24V14C0 6 4 1 12 0l1 4c-4 1-6 4-6 8h6v12zM18 24V14c0-8 4-13 12-14l1 4c-4 1-6 4-6 8h6v12z"/></svg>
+          <span style="font-size: 13px; color: #5F566B; letter-spacing: 0.04em">[Customer review screenshot 3]</span>
+        </figure>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; padding-top: 48px">
+        <div style="display: flex; align-items: center; gap: 14px">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2A2238" stroke-width="1.3" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".6" fill="#2A2238"/></svg>
+          <span style="font-family: 'Cormorant Garamond', serif; font-size: 28px">@[instagram handle]</span>
+        </div>
+        <a href="#" class="ih-btn ih-btn-ghost" style="background: transparent; color: #2A2238; border: 1px solid #2A2238; text-decoration: none; font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; padding: 0 26px; height: 48px; display: inline-flex; align-items: center; border-radius: 24px; box-sizing: border-box">Follow on Instagram</a>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); gap: 12px">
+        <div style="aspect-ratio: 1; background: #EBCFC8; border-radius: 4px; display: grid; place-items: center; font-size: 12px; color: #2A2238">[Post 1]</div>
+        <div style="aspect-ratio: 1; background: #DCDFD1; border-radius: 4px; display: grid; place-items: center; font-size: 12px; color: #2A2238">[Post 2]</div>
+        <div style="aspect-ratio: 1; background: #D3DAE0; border-radius: 4px; display: grid; place-items: center; font-size: 12px; color: #2A2238">[Post 3]</div>
+        <div style="aspect-ratio: 1; background: #EFE6DC; border-radius: 4px; display: grid; place-items: center; font-size: 12px; color: #2A2238">[Post 4]</div>
+        <div style="aspect-ratio: 1; background: #E4C9B6; border-radius: 4px; display: grid; place-items: center; font-size: 12px; color: #2A2238">[Post 5]</div>
+        <div style="aspect-ratio: 1; background: #E1DAD3; border-radius: 4px; display: grid; place-items: center; font-size: 12px; color: #2A2238">[Post 6]</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Custom & bulk orders -->
+  <section id="custom" style="padding: 0 clamp(16px, 3vw, 40px) clamp(80px, 9vw, 140px)">
+    <div style="max-width: 1320px; margin: 0 auto; background: #EBCFC8; border-radius: 4px; padding: clamp(40px, 6vw, 88px); box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 32px; position: relative; overflow: hidden">
+      <div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 18px; position: relative">
+        <span style="font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase; color: #2A2238; font-weight: 500">Custom &amp; Bulk Orders</span>
+        <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(36px, 4.2vw, 60px); line-height: 1.05">Gifting for your team, clients and guests, <em style="font-style: italic">made in your colours.</em></h2>
+        <p style="margin: 0; font-size: 17px; line-height: 1.65; color: #3E3550; max-width: 520px">Corporate gifting, hotels and festive orders. Tell us the occasion and quantity, and we will take it from there.</p>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px; position: relative">
+        <a href="https://wa.me/[NUMBER]" class="ih-btn ih-btn-primary" style="background: #32255D; color: #F7F2EC; text-decoration: none; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; padding: 0 30px; height: 56px; display: inline-flex; align-items: center; justify-content: center; gap: 12px; border-radius: 28px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 20.5 5 16a8.5 8.5 0 1 1 3.2 3.1z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 .8a4 4 0 0 1-1.8-1.8l.8-1-1-2z"/></svg>
+          Chat on WhatsApp
+        </a>
+        <span style="font-size: 13px; color: #3E3550; text-align: center">For corporate enquiries &amp; gifting</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="footer" class="ih-foot" style="background: #32255D; color: #F7F2EC; padding: clamp(64px, 7vw, 100px) clamp(16px, 3vw, 40px) 32px">
+    <div style="max-width: 1320px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px">
+      <div style="display: flex; flex-wrap: wrap; gap: 48px; justify-content: space-between">
+        <div style="flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+          <img src="assets/logo-lockup.png" alt="Innhand Creations — You choose, we create!" style="width: 220px; height: auto; display: block">
+        </div>
+        <nav aria-label="Shop" style="flex: 0 1 180px; display: flex; flex-direction: column; gap: 12px; font-size: 15px">
+          <span style="font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: #EBCFC8; padding-bottom: 6px">Shop</span>
+          <a href="#">Home Décor</a><a href="#">Gifting</a><a href="#">Diwali Gifting</a><a href="#">Housewarming</a><a href="#">Corporate &amp; Hotels</a>
+        </nav>
+        <nav aria-label="Help" style="flex: 0 1 200px; display: flex; flex-direction: column; gap: 12px; font-size: 15px">
+          <span style="font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: #EBCFC8; padding-bottom: 6px">Help</span>
+          <a href="#">Contact Us</a><a href="#">Returns &amp; Exchanges</a><a href="#">Shipping Policy</a><a href="#custom">Custom &amp; Bulk Orders</a>
+        </nav>
+        <nav aria-label="Brand" style="flex: 0 1 180px; display: flex; flex-direction: column; gap: 12px; font-size: 15px">
+          <span style="font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: #EBCFC8; padding-bottom: 6px">Innhand</span>
+          <a href="our-story.html">Our Story</a><a href="#">Instagram</a><a href="https://wa.me/[NUMBER]">WhatsApp</a>
+        </nav>
+      </div>
+      <div style="border-top: 1px solid rgba(247,242,236,.18); padding-top: 24px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 13px; color: #CFC6DE">
+        <span>© 2026 Innhand Creations. Handmade with care.</span>
+        <span>[email@innhandcreations.com]</span>
+      </div>
+    </div>
+  </footer>
+</div>
+<script>
+(function () {
+  var slides = document.querySelectorAll('.ih-slide');
+  var dots = document.querySelectorAll('.ih-dot span');
+  var counter = document.getElementById('ih-counter');
+  var menu = document.getElementById('ih-menu');
+  var opener = document.querySelector('[data-open-menu]');
+  var i = 0, timer;
+  function show(n) {
+    i = (n + slides.length) % slides.length;
+    slides.forEach(function (s, k) {
+      var on = k === i;
+      s.style.opacity = on ? 1 : 0;
+      s.style.visibility = on ? 'visible' : 'hidden';
+      s.setAttribute('aria-hidden', on ? 'false' : 'true');
+      var art = s.querySelector('.ih-slide-art');
+      if (art) art.style.transform = 'scale(' + (on ? 1 : 1.06) + ')';
+    });
+    dots.forEach(function (d, k) {
+      d.style.width = k === i ? '36px' : '16px';
+      d.style.background = k === i ? '#2A2238' : '#C9BDB0';
+    });
+    counter.textContent = '0' + (i + 1) + ' / 0' + slides.length;
+  }
+  function restart() {
+    clearInterval(timer);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    timer = setInterval(function () { if (menu.hidden) show(i + 1); }, 5500);
+  }
+  document.querySelectorAll('.ih-dot').forEach(function (b) {
+    b.addEventListener('click', function () { show(+b.dataset.go); restart(); });
+  });
+  document.querySelector('[data-prev]').addEventListener('click', function () { show(i - 1); restart(); });
+  document.querySelector('[data-next]').addEventListener('click', function () { show(i + 1); restart(); });
+  function setMenu(open) {
+    menu.hidden = !open;
+    opener.setAttribute('aria-expanded', open ? 'true' : 'false');
+    document.body.style.overflow = open ? 'hidden' : '';
+    if (open) menu.querySelector('[data-close-menu]').focus(); else opener.focus();
+  }
+  opener.addEventListener('click', function () { setMenu(true); });
+  document.querySelectorAll('[data-close-menu]').forEach(function (b) {
+    b.addEventListener('click', function () { setMenu(false); });
+  });
+  menu.querySelectorAll('a').forEach(function (a) {
+    a.addEventListener('click', function () { if (!menu.hidden) setMenu(false); });
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !menu.hidden) setMenu(false); });
+  restart();
+})();
+</script>
+</body>
+</html>
