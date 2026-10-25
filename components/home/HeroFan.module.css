@@ -7,7 +7,7 @@
   /* Announcement bar (38px) + sticky header (84px) above the hero. */
   --chrome: 122px;
   /* Card width on phones and tablets, where the hero flows normally. */
-  --m-card-w: clamp(170px, 46vw, 280px);
+  --m-card-w: clamp(160px, 44vw, 260px);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -50,19 +50,27 @@
  */
 .stage {
   position: relative;
-  flex: 0 1 calc(min((100vw - 48px) / 5, 340px) * 1.6 + 24px);
+  flex: 0 1 calc(330px * 1.85 + 30px);
   min-height: 0;
   container-type: size;
 }
 
-/* Card geometry lives in custom properties; the inline transforms read --step and --drop. */
+/*
+ * Card geometry lives in custom properties; HeroFan.tsx positions each card from --card-w,
+ * --spread and --wave. The cards ride a gentle S-curve across the whole width of the page:
+ * flat through the middle, dipping on the left and rising on the right, each tilted to
+ * follow the line and growing as it nears the centre. --card-w is the unscaled card width;
+ * the centre card is drawn 1.35x larger, so the stage needs that much extra height.
+ */
 .fan {
-  --card-w: clamp(150px, min((100cqh - 30px) * 0.625, (100cqw - 48px) / 5), 340px);
+  --card-w: clamp(130px, (100cqh - 30px) * 0.54, 330px);
   --card-h: calc(var(--card-w) * 4 / 3);
-  --step: calc(var(--card-w) * 0.95);
-  --drop: calc(var(--card-w) * 0.045);
-  /* The tilted, dropped outer cards make the fan about 1.2 card-heights tall. */
-  --top: max(20px, (100cqh - var(--card-h) * 1.2 - 8px) / 2);
+  /* Scales how far apart the cards sit; the layout itself is worked out in HeroFan.tsx. */
+  --spread: 1;
+  /* How far the outermost cards sit above / below the middle one. */
+  --wave: calc(var(--card-w) * 0.2);
+  /* The middle card is centred, so the wave has equal room above and below. */
+  --top: calc((100cqh - var(--card-h)) / 2);
   position: absolute;
   inset: 0;
   touch-action: pan-y;
@@ -73,13 +81,12 @@
 @media (max-width: 900px) {
   .stage {
     flex: none;
-    height: calc(var(--m-card-w) * 1.6 + 24px);
+    height: calc(var(--m-card-w) * 1.85 + 24px);
   }
 
   .fan {
     --card-w: var(--m-card-w);
-    --step: calc(var(--card-w) * 0.52);
-    --top: 16px;
+    --spread: 0.62;
   }
 }
 
@@ -97,11 +104,11 @@
   background: #FFFFFF;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(42, 34, 56, .06), 0 28px 48px -26px rgba(42, 34, 56, .45);
+  /* Position, size and opacity are painted every frame, so only hover and shadow ease here. */
   transition:
-    transform .8s cubic-bezier(.22, 1, .36, 1),
     translate .4s cubic-bezier(.22, 1, .36, 1),
     box-shadow .4s ease;
-  animation: fanIn 1s cubic-bezier(.34, 1.4, .64, 1) backwards;
+  will-change: transform;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -119,13 +126,23 @@
   outline-offset: 4px;
 }
 
+/* Cards further from the centre melt into the page. */
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #F7F2EC;
+  opacity: var(--fade, 0);
+  pointer-events: none;
+}
+
 .card img {
   pointer-events: none;
 }
 
-/* A card wrapping from one end of the fan to the other jumps instead of sweeping across. */
-.instant {
-  transition: none;
+/* Only the cards present on first load spread out; later ones slide in from the edges. */
+.intro {
+  animation: fanIn 1s cubic-bezier(.34, 1.4, .64, 1) backwards;
 }
 
 .label {
@@ -144,7 +161,8 @@
   border-radius: 999px;
   white-space: nowrap;
   box-shadow: 0 6px 16px -10px rgba(42, 34, 56, .4);
-  transition: opacity .4s ease;
+  opacity: var(--label, 1);
+  z-index: 1;
 }
 
 @media (max-width: 900px) {
@@ -212,7 +230,7 @@
 @keyframes fanIn {
   from {
     opacity: 0;
-    translate: calc(var(--step) * var(--o0) * -1) 40px;
+    translate: calc(var(--card-w) * var(--spread) * var(--o0) * -1) 40px;
   }
 }
 
@@ -225,6 +243,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .card,
+  .intro,
   .text {
     animation: none;
     transition: none;

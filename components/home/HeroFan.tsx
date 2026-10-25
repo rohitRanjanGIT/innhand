@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import type { CSSProperties, FocusEvent, KeyboardEvent, PointerEvent } from "react";
-import { useEffect, useReducer, useRef, useState } from "react";
+import type { FocusEvent, KeyboardEvent, PointerEvent } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ButtonLink, Eyebrow } from "../ui";
 import styles from "./HeroFan.module.css";
 
@@ -55,57 +55,207 @@ const products: Product[] = [
 ];
 
 const AUTOPLAY_MS = 5500;
-const SWIPE_PX = 40;
+const INTRO_MS = 1600;
+/** Time constant (ms) of the easing that glides the strip toward where it should rest. */
+const GLIDE_MS = 110;
+/** A wheel gesture is over once no wheel event has arrived for this long. */
+const WHEEL_IDLE_MS = 120;
+const DRAG_START_PX = 6;
 const n = products.length;
-const half = Math.floor(n / 2);
+// Cards sit on an endless strip, so enough copies of the products are rendered to run past
+// both edges of a wide window. Cards fade in and out at the outermost slots.
+const REACH = 7;
 const pad = (v: number) => String(v).padStart(2, "0");
+const mod = (v: number) => ((v % n) + n) % n;
+const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
-/** Position of card `i` relative to the active card, wrapped into -half..half. */
-const offsetOf = (i: number, active: number) => ((i - active + half + n * 2) % n) - half;
+/** Height of the wave at offset `o` from the centre: flat in the middle, levelling off further out. */
+const waveY = (o: number) => Math.tanh((o / 2) ** 3);
 
-type State = { active: number; prev: number };
+/** Tilt that follows the slope of the wave, so each card sits along the line. */
+const waveTilt = (o: number) => {
+  const u = o / 2;
+  const slope = (1.5 * u * u) / Math.cosh(u ** 3) ** 2;
+  return -Math.atan(slope * 0.12) * (180 / Math.PI);
+};
 
-function reducer(state: State, next: number): State {
-  const active = ((next % n) + n) % n;
-  return active === state.active ? state : { active, prev: state.active };
+/** Cards grow as they near the centre. */
+const SCALE_MAX = 1.35;
+const SCALE_MIN = 0.7;
+const SCALE_DROP = 0.18;
+const scaleOf = (o: number) => Math.max(SCALE_MIN, SCALE_MAX - SCALE_DROP * Math.abs(o));
+
+/**
+ * Distance from the centre card, in card widths. Each step is as wide as the card it
+ * crosses (less a small overlap), so the gaps stay even however much the cards shrink.
+ */
+const OVERLAP = 0.06;
+const SHRINK_END = (SCALE_MAX - SCALE_MIN) / SCALE_DROP;
+const spanOf = (a: number) => {
+  const sloped = Math.min(a, SHRINK_END);
+  return SCALE_MAX * sloped - (SCALE_DROP * sloped * sloped) / 2 + SCALE_MIN * (a - sloped) - OVERLAP * a;
+};
+
+/** Everything that depends on a card's offset `o` from the centre. */
+function layoutOf(o: number) {
+  const a = Math.abs(o);
+  return {
+    transform: `translateX(calc(var(--card-w) * var(--spread) * ${Math.sign(o) * spanOf(a)})) translateY(calc(var(--wave) * ${-waveY(o)})) rotate(${waveTilt(o)}deg) scale(${scaleOf(o)})`,
+    // Fully visible out to the last-but-one slot, gone at the last.
+    opacity: clamp(REACH - a, 0, 1),
+    zIndex: Math.round(100 - a * 10),
+    // Only the cards near the middle show their label.
+    label: clamp(2 - a, 0, 1),
+    // Outer cards melt into the page.
+    fade: Math.min(0.6, a * 0.14),
+  };
+}
+
+function paint(el: HTMLElement, o: number) {
+  const l = layoutOf(o);
+  el.style.transform = l.transform;
+  el.style.opacity = String(l.opacity);
+  el.style.zIndex = String(l.zIndex);
+  el.style.setProperty("--label", String(l.label));
+  el.style.setProperty("--fade", String(l.fade));
 }
 
 export default function HeroFan() {
-  const [{ active, prev }, go] = useReducer(reducer, { active: 0, prev: 0 });
+  // The strip's position moves continuously (and never wraps), so it lives in refs and is
+  // painted straight onto the cards each frame. `center` is the card it currently rests on.
+  const target = useRef(0);
+  const current = useRef(0);
+  const raf = useRef(0);
+  const cards = useRef(new Map<number, HTMLButtonElement>());
+  const stageRef = useRef<HTMLDivElement>(null);
+  const fanRef = useRef<HTMLDivElement>(null);
+  const drag = useRef<{ id: number; x: number; from: number; active: boolean } | null>(null);
+  const suppressClick = useRef(false);
+
+  const [center, setCenter] = useState(0);
   const [paused, setPaused] = useState(false);
-  const swipe = useRef<{ x: number; moved: boolean } | null>(null);
+  const [intro, setIntro] = useState(true);
+  const active = mod(center);
   const product = products[active];
+
+  /** Animate `current` toward `target`, painting every frame until it arrives. */
+  const glide = useCallback(() => {
+    if (raf.current) return;
+    let last = performance.now();
+    const frame = (now: number) => {
+      const dt = Math.min(now - last, 50);
+      last = now;
+      const diff = target.current - current.current;
+      const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      current.current =
+        still || Math.abs(diff) < 0.0008 ? target.current : current.current + diff * (1 - Math.exp(-dt / GLIDE_MS));
+      cards.current.forEach((el, v) => paint(el, v - current.current));
+      setCenter(Math.round(current.current));
+      raf.current = current.current === target.current ? 0 : requestAnimationFrame(frame);
+    };
+    raf.current = requestAnimationFrame(frame);
+  }, []);
+
+  /** Pixels of pointer travel that move the strip by one card. */
+  const unit = () => {
+    const el = cards.current.values().next().value;
+    const spread = fanRef.current ? parseFloat(getComputedStyle(fanRef.current).getPropertyValue("--spread")) : 1;
+    return (el?.offsetWidth ?? 220) * 1.2 * (spread || 1);
+  };
+
+  useEffect(() => {
+    const t = setTimeout(() => setIntro(false), INTRO_MS);
+    return () => {
+      clearTimeout(t);
+      cancelAnimationFrame(raf.current);
+    };
+  }, []);
 
   // Re-arming on every change also restarts the timer after manual navigation.
   useEffect(() => {
     if (paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = setTimeout(() => go(active + 1), AUTOPLAY_MS);
+    const t = setTimeout(() => {
+      target.current = Math.round(target.current) + 1;
+      glide();
+    }, AUTOPLAY_MS);
     return () => clearTimeout(t);
-  }, [active, paused]);
+  }, [center, paused, glide]);
+
+  // Scrolling the wheel over the cards moves the strip. React's wheel handlers are passive,
+  // so this one is attached by hand to be allowed to stop the page from scrolling.
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    let gesture: { from: number } | null = null;
+    let idle: ReturnType<typeof setTimeout>;
+
+    const settle = () => {
+      if (!gesture) return;
+      const moved = target.current - gesture.from;
+      // A single notch is only a fraction of a card, but it should still move one card.
+      const steps = Math.abs(moved) < 0.08 ? 0 : Math.abs(moved) < 1 ? Math.sign(moved) : Math.round(moved);
+      target.current = gesture.from + steps;
+      gesture = null;
+      glide();
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      const raw = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      if (!raw) return;
+      e.preventDefault();
+      gesture ??= { from: Math.round(target.current) };
+      const px = clamp(e.deltaMode === 1 ? raw * 33 : raw, -120, 120);
+      target.current = clamp(target.current + px / unit(), gesture.from - 3, gesture.from + 3);
+      glide();
+      clearTimeout(idle);
+      idle = setTimeout(settle, WHEEL_IDLE_MS);
+    };
+
+    stage.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      stage.removeEventListener("wheel", onWheel);
+      clearTimeout(idle);
+    };
+  }, [glide]);
 
   const onPointerDown = (e: PointerEvent) => {
-    swipe.current = { x: e.clientX, moved: false };
+    if (e.button !== 0) return;
+    suppressClick.current = false;
+    drag.current = { id: e.pointerId, x: e.clientX, from: target.current, active: false };
   };
-  const onPointerUp = (e: PointerEvent) => {
-    const s = swipe.current;
-    if (!s) return;
-    const dx = e.clientX - s.x;
-    if (Math.abs(dx) > SWIPE_PX) {
-      s.moved = true;
-      go(active + (dx < 0 ? 1 : -1));
+  const onPointerMove = (e: PointerEvent) => {
+    const d = drag.current;
+    if (!d || d.id !== e.pointerId) return;
+    const dx = e.clientX - d.x;
+    if (!d.active) {
+      if (Math.abs(dx) < DRAG_START_PX) return;
+      d.active = true;
+      suppressClick.current = true;
+      e.currentTarget.setPointerCapture(e.pointerId);
     }
+    target.current = d.from - dx / unit();
+    glide();
   };
-  const onCardClick = (i: number) => {
-    // A swipe that ends on a card shouldn't also select that card.
-    if (swipe.current?.moved) {
-      swipe.current = null;
-      return;
-    }
-    go(i);
+  const onPointerEnd = (e: PointerEvent) => {
+    const d = drag.current;
+    if (!d || d.id !== e.pointerId) return;
+    drag.current = null;
+    if (!d.active) return;
+    // Even a short flick moves on to the next card.
+    const moved = target.current - d.from;
+    target.current = Math.round(d.from + moved + Math.sign(moved) * 0.35);
+    glide();
+  };
+  const onCardClick = (v: number) => {
+    // A drag that ends on a card shouldn't also select that card.
+    if (suppressClick.current) return;
+    target.current = v;
+    glide();
   };
   const onKeyDown = (e: KeyboardEvent) => {
-    if (e.key === "ArrowLeft") go(active - 1);
-    if (e.key === "ArrowRight") go(active + 1);
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    target.current = Math.round(target.current) + (e.key === "ArrowLeft" ? -1 : 1);
+    glide();
   };
   const onBlur = (e: FocusEvent) => {
     if (!e.currentTarget.contains(e.relatedTarget)) setPaused(false);
@@ -128,37 +278,57 @@ export default function HeroFan() {
         </h1>
       </div>
 
-      <div className={styles.stage}>
-        <div className={styles.fan} onPointerDown={onPointerDown} onPointerUp={onPointerUp} onKeyDown={onKeyDown}>
-          {products.map((p, i) => {
-            const o = offsetOf(i, active);
-            const o0 = offsetOf(i, 0);
-            const wrapped = Math.abs(o - offsetOf(i, prev)) > half;
+      <div ref={stageRef} className={styles.stage}>
+        <div
+          ref={fanRef}
+          className={styles.fan}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerEnd}
+          onPointerCancel={onPointerEnd}
+          onKeyDown={onKeyDown}
+        >
+          {Array.from({ length: REACH * 2 + 1 }, (_, k) => {
+            const v = center - REACH + k;
+            const p = products[mod(v)];
+            const far = Math.abs(v - center) > 3;
+            const first = layoutOf(v);
             return (
               <button
-                key={p.name}
+                key={v}
+                // Card positions are painted by `paint`, which also runs when a card mounts.
+                ref={(el) => {
+                  if (!el) {
+                    cards.current.delete(v);
+                    return;
+                  }
+                  cards.current.set(v, el);
+                  paint(el, v - current.current);
+                }}
                 type="button"
-                className={wrapped ? `${styles.card} ${styles.instant}` : styles.card}
-                aria-current={o === 0}
-                aria-label={o === 0 ? p.name : `Show ${p.name}`}
-                onClick={() => onCardClick(i)}
-                style={
-                  {
-                    zIndex: n - Math.abs(o),
-                    transform: `translateX(calc(var(--step) * ${o})) translateY(calc(var(--drop) * ${o * o})) rotate(${o * 4}deg) scale(${o === 0 ? 1.04 : 1})`,
-                    "--o0": o0,
-                    animationDelay: `${150 + Math.abs(o0) * 90}ms`,
-                  } as CSSProperties
-                }
+                className={intro ? `${styles.card} ${styles.intro}` : styles.card}
+                aria-current={v === center}
+                aria-hidden={far || undefined}
+                tabIndex={far ? -1 : undefined}
+                aria-label={v === center ? p.name : `Show ${p.name}`}
+                onClick={() => onCardClick(v)}
+                // Server-rendered starting layout; its value never changes for a given card.
+                style={{
+                  transform: first.transform,
+                  opacity: first.opacity,
+                  zIndex: first.zIndex,
+                  ...({ "--label": first.label, "--fade": first.fade, "--o0": v } as object),
+                  animationDelay: `${150 + Math.min(Math.abs(v), 3) * 90}ms`,
+                }}
               >
                 <Image
                   src={p.image}
                   alt=""
                   fill
                   sizes="(max-width: 900px) 280px, 340px"
-                  // All cards are above the fold: preload the first, load the rest eagerly.
-                  preload={o0 === 0}
-                  loading={o0 === 0 ? undefined : "eager"}
+                  // All visible cards are above the fold: preload the first, load the rest eagerly.
+                  preload={v === 0}
+                  loading={v === 0 ? undefined : "eager"}
                   unoptimized={p.image.endsWith(".svg")}
                   draggable={false}
                   style={{ objectFit: "cover" }}
