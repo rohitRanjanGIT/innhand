@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import DesktopNav from "./DesktopNav";
 import SideMenu from "./SideMenu";
+import { DESKTOP_NAV_MIN_WIDTH } from "@/lib/site";
 
 const iconBtn = {
   background: "transparent",
@@ -26,23 +28,23 @@ export default function Header() {
     openerRef.current?.focus();
   }, []);
 
+  // If the window grows to desktop width while the side menu is open, close it:
+  // the burger is hidden there and the desktop nav takes over.
+  useEffect(() => {
+    const mq = window.matchMedia(`(min-width: ${DESKTOP_NAV_MIN_WIDTH}px)`);
+    const onChange = (e: MediaQueryListEvent) => {
+      if (e.matches) setOpen(false);
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
   return (
     <>
       <header style={{ background: "#32255D", color: "#F7F2EC", position: "sticky", top: 0, zIndex: 20 }}>
-        <div
-          className="ih-header-grid"
-          style={{
-            maxWidth: 1320,
-            margin: "0 auto",
-            padding: "0 clamp(16px, 3vw, 40px)",
-            height: 84,
-            display: "grid",
-            gridTemplateColumns: "minmax(0, 1fr) auto minmax(0, 1fr)",
-            alignItems: "center",
-            gap: 16,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+        {/* Mobile/tablet: burger · logo · icons. Desktop (≥1024px): logo · nav · icons. See .ih-header-row in globals.css. */}
+        <div className="ih-header-row">
+          <div className="ih-header-burger">
             <button
               ref={openerRef}
               className="ih-icon-btn ih-btn"
@@ -74,7 +76,7 @@ export default function Header() {
             </button>
           </div>
 
-          <Link href="/" aria-label="Innhand Creations home" style={{ display: "block", lineHeight: 0 }}>
+          <Link href="/" aria-label="Innhand Creations home" className="ih-header-logo">
             <Image
               className="ih-logo"
               src="/assets/logo-word.png"
@@ -86,7 +88,9 @@ export default function Header() {
             />
           </Link>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 2 }}>
+          <DesktopNav />
+
+          <div className="ih-header-icons">
             <button className="ih-icon-btn ih-btn ih-hdr-icon" aria-label="Search" style={iconBtn}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" aria-hidden="true">
                 <circle cx="11" cy="11" r="7" />

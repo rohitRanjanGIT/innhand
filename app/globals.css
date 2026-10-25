@@ -19,15 +19,129 @@ a:hover { color: #B52D6F; }
   .ih-hide-sm { display: none !important; }
 }
 
+/* ---------- Header layout ----------
+   Mobile/tablet: burger · centred logo · icons (side menu).
+   Desktop ≥1024px (DESKTOP_NAV_MIN_WIDTH in lib/site.ts): logo · nav · icons. */
+.ih-header-row {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 3vw, 40px);
+  height: 84px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-areas: "burger logo icons";
+  align-items: center;
+  gap: 16px;
+}
+.ih-header-burger { grid-area: burger; display: flex; align-items: center; gap: 4px; }
+.ih-header-logo { grid-area: logo; display: block; line-height: 0; }
+.ih-header-icons { grid-area: icons; display: flex; justify-content: flex-end; align-items: center; gap: 2px; }
+.ih-desktop-nav { display: none; }
+
+@media (min-width: 1024px) {
+  .ih-header-row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "logo nav icons";
+    gap: 32px;
+  }
+  .ih-header-burger { display: none; }
+  .ih-desktop-nav { grid-area: nav; display: flex; justify-content: center; align-self: stretch; }
+}
+
+/* ---------- Desktop nav ---------- */
+.ih-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: stretch;
+  gap: clamp(4px, 1vw, 16px);
+  height: 100%;
+}
+.ih-nav-item { position: relative; display: flex; align-items: center; }
+/* The Shop mega panel anchors to the (sticky) header, so its item must not be positioned. */
+.ih-nav-item--mega { position: static; }
+
+.ih-nav-top {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+  padding: 0 12px;
+  background: transparent;
+  border: 0;
+  color: #F7F2EC;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.ih-nav-top:hover { color: #FFFFFF; }
+.ih-nav-top::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 8px;
+  height: 1px;
+  background: #EBCFC8;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .35s cubic-bezier(.2, .7, .2, 1);
+}
+.ih-nav-top:hover::after,
+.ih-nav-top[data-open]::after,
+.ih-nav-top[aria-current="page"]::after { transform: scaleX(1); }
+.ih-nav-top:focus-visible { outline: 2px solid #EBCFC8; outline-offset: 2px; border-radius: 22px; }
+.ih-nav-chevron { transition: transform .3s ease; }
+.ih-nav-top[data-open] .ih-nav-chevron { transform: rotate(180deg); }
+
+.ih-nav-panel {
+  position: absolute;
+  top: 100%;
+  background: #F7F2EC;
+  color: #2A2238;
+  box-shadow: 0 24px 48px -12px rgba(42, 34, 56, .22);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity .25s ease, transform .3s cubic-bezier(.2, .7, .2, 1), visibility 0s linear .3s;
+  z-index: 30;
+}
+.ih-nav-panel[data-open] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity .25s ease, transform .3s cubic-bezier(.2, .7, .2, 1), visibility 0s;
+}
+.ih-nav-mega { left: 0; right: 0; border-top: 1px solid #E2D9CE; }
+.ih-nav-dropdown {
+  left: 50%;
+  width: 300px;
+  margin-left: -150px;
+  padding: 28px 28px 32px;
+  box-sizing: border-box;
+  border-radius: 0 0 4px 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ih-nav-panel, .ih-nav-panel[data-open], .ih-nav-top::after, .ih-nav-chevron { transition: none; }
+}
+
 /* Narrow phones: the logo and three icons don't fit side by side at full size. */
 @media (max-width: 520px) {
-  .ih-header-grid { gap: 6px !important; }
-  .ih-logo { height: 34px !important; }
+  .ih-header-row { gap: 6px !important; }
+  .ih-header-logo img { height: 34px !important; }
   .ih-hdr-icon { width: 36px !important; height: 36px !important; }
 }
 
 /* Very narrow phones: centring the logo on the screen leaves no room, so centre it in the free space. */
 @media (max-width: 340px) {
-  .ih-header-grid { grid-template-columns: auto minmax(0, 1fr) auto !important; }
-  .ih-header-grid > a { justify-self: center; }
+  .ih-header-row { grid-template-columns: auto minmax(0, 1fr) auto !important; }
+  .ih-header-logo { justify-self: center; }
 }
