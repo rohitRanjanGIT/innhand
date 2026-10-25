@@ -8,6 +8,8 @@ import styles from "./HeroFan.module.css";
 
 type Product = {
   name: string;
+  /** Shop category, shown under the name. */
+  category: string;
   blurb: string;
   image: string;
   href: string;
@@ -17,30 +19,35 @@ type Product = {
 const products: Product[] = [
   {
     name: "Flower Vases",
+    category: "Home Décor",
     blurb: "A pair of sculptural vases, hand-poured in the colours you choose.",
     image: "/assets/cards/vases.svg",
     href: "#",
   },
   {
     name: "Leaf Heart Tray",
+    category: "Gifting",
     blurb: "A heart-shaped tray with a leaf imprint, for rings, keys and little keepsakes.",
     image: "/assets/cards/heart-tray.svg",
     href: "#",
   },
   {
     name: "Bubble Tray with Tulip Candles",
+    category: "Gifting",
     blurb: "A bubble tray paired with tulip candles. A gift that is ready to glow.",
     image: "/assets/cards/tulip-tray.svg",
     href: "#",
   },
   {
     name: "Coaster Set",
+    category: "Home Décor",
     blurb: "Speckled coasters for the table and the bar cart, poured in your colours.",
     image: "/assets/cards/coasters.svg",
     href: "#",
   },
   {
     name: "Tealight Holders",
+    category: "Home Décor",
     blurb: "Little holders that bring a soft glow to a shelf, a desk or a festive table.",
     image: "/assets/cards/tealights.svg",
     href: "#",
@@ -60,6 +67,9 @@ const n = products.length;
 const REACH = 7;
 const mod = (v: number) => ((v % n) + n) % n;
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+// Math.tanh, cosh and atan can differ in the last digits between Node and the browser, which
+// would make the server-rendered styles disagree with the client's. Rounding hides that.
+const round = (v: number) => Math.round(v * 1000) / 1000;
 
 /** Height of the wave at offset `o` from the centre: flat in the middle, levelling off further out. */
 const waveY = (o: number) => Math.tanh((o / 2) ** 3);
@@ -92,12 +102,12 @@ const spanOf = (a: number) => {
 function layoutOf(o: number) {
   const a = Math.abs(o);
   return {
-    transform: `translateX(calc(var(--card-w) * var(--spread) * ${Math.sign(o) * spanOf(a)})) translateY(calc(var(--wave) * ${-waveY(o)})) rotate(${waveTilt(o)}deg) scale(${scaleOf(o)})`,
+    transform: `translateX(calc(var(--card-w) * var(--spread) * ${round(Math.sign(o) * spanOf(a))})) translateY(calc(var(--wave) * ${round(-waveY(o))})) rotate(${round(waveTilt(o))}deg) scale(${round(scaleOf(o))})`,
     // Fully visible out to the last-but-one slot, gone at the last.
-    opacity: clamp(REACH - a, 0, 1),
+    opacity: round(clamp(REACH - a, 0, 1)),
     zIndex: Math.round(100 - a * 10),
     // Outer cards melt into the page.
-    fade: Math.min(0.6, a * 0.14),
+    fade: round(Math.min(0.6, a * 0.14)),
   };
 }
 
@@ -329,9 +339,10 @@ export default function HeroFan() {
       </div>
 
       <div className={styles.info}>
-        <h2 key={active} className={styles.name}>
-          {product.name}
-        </h2>
+        <div key={active} className={styles.text}>
+          <h2 className={styles.name}>{product.name}</h2>
+          <p className={styles.category}>{product.category}</p>
+        </div>
         <div className={styles.actions}>
           <ButtonLink href={product.href}>View product</ButtonLink>
           <ButtonLink href="#" variant="ghost" style={{ gap: 10 }}>
