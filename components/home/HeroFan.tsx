@@ -8,8 +8,6 @@ import styles from "./HeroFan.module.css";
 
 type Product = {
   name: string;
-  /** Short name shown on the card's pill. */
-  label: string;
   blurb: string;
   image: string;
   href: string;
@@ -19,35 +17,30 @@ type Product = {
 const products: Product[] = [
   {
     name: "Flower Vases",
-    label: "Vases",
     blurb: "A pair of sculptural vases, hand-poured in the colours you choose.",
     image: "/assets/cards/vases.svg",
     href: "#",
   },
   {
     name: "Leaf Heart Tray",
-    label: "Heart Tray",
     blurb: "A heart-shaped tray with a leaf imprint, for rings, keys and little keepsakes.",
     image: "/assets/cards/heart-tray.svg",
     href: "#",
   },
   {
     name: "Bubble Tray with Tulip Candles",
-    label: "Bubble Tray",
     blurb: "A bubble tray paired with tulip candles. A gift that is ready to glow.",
     image: "/assets/cards/tulip-tray.svg",
     href: "#",
   },
   {
     name: "Coaster Set",
-    label: "Coasters",
     blurb: "Speckled coasters for the table and the bar cart, poured in your colours.",
     image: "/assets/cards/coasters.svg",
     href: "#",
   },
   {
     name: "Tealight Holders",
-    label: "Tealights",
     blurb: "Little holders that bring a soft glow to a shelf, a desk or a festive table.",
     image: "/assets/cards/tealights.svg",
     href: "#",
@@ -65,7 +58,6 @@ const n = products.length;
 // Cards sit on an endless strip, so enough copies of the products are rendered to run past
 // both edges of a wide window. Cards fade in and out at the outermost slots.
 const REACH = 7;
-const pad = (v: number) => String(v).padStart(2, "0");
 const mod = (v: number) => ((v % n) + n) % n;
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
@@ -104,8 +96,6 @@ function layoutOf(o: number) {
     // Fully visible out to the last-but-one slot, gone at the last.
     opacity: clamp(REACH - a, 0, 1),
     zIndex: Math.round(100 - a * 10),
-    // Only the cards near the middle show their label.
-    label: clamp(2 - a, 0, 1),
     // Outer cards melt into the page.
     fade: Math.min(0.6, a * 0.14),
   };
@@ -116,7 +106,6 @@ function paint(el: HTMLElement, o: number) {
   el.style.transform = l.transform;
   el.style.opacity = String(l.opacity);
   el.style.zIndex = String(l.zIndex);
-  el.style.setProperty("--label", String(l.label));
   el.style.setProperty("--fade", String(l.fade));
 }
 
@@ -317,7 +306,7 @@ export default function HeroFan() {
                   transform: first.transform,
                   opacity: first.opacity,
                   zIndex: first.zIndex,
-                  ...({ "--label": first.label, "--fade": first.fade, "--o0": v } as object),
+                  ...({ "--fade": first.fade, "--o0": v } as object),
                   animationDelay: `${150 + Math.min(Math.abs(v), 3) * 90}ms`,
                 }}
               >
@@ -333,7 +322,6 @@ export default function HeroFan() {
                   draggable={false}
                   style={{ objectFit: "cover" }}
                 />
-                <span className={styles.label}>{p.label}</span>
               </button>
             );
           })}
@@ -341,11 +329,9 @@ export default function HeroFan() {
       </div>
 
       <div className={styles.info}>
-        <div key={active} className={styles.text}>
-          <Eyebrow>Top pick · {pad(active + 1)}</Eyebrow>
-          <h2 className={styles.name}>{product.name}</h2>
-          <p className={styles.blurb}>{product.blurb}</p>
-        </div>
+        <h2 key={active} className={styles.name}>
+          {product.name}
+        </h2>
         <div className={styles.actions}>
           <ButtonLink href={product.href}>View product</ButtonLink>
           <ButtonLink href="#" variant="ghost" style={{ gap: 10 }}>

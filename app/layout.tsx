@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Jost } from "next/font/google";
 import "./globals.css";
-import AnnouncementBar from "@/components/AnnouncementBar";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -42,7 +41,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             minHeight: "100vh",
           }}
         >
-          <AnnouncementBar />
           <Header />
           {children}
           <Footer />

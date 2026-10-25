@@ -4,10 +4,10 @@
  * themselves to the window and the buttons never fall below the fold.
  */
 .section {
-  /* Announcement bar (38px) + sticky header (84px) above the hero. */
-  --chrome: 122px;
+  /* Sticky header (84px) above the hero. */
+  --chrome: 84px;
   /* Card width on phones and tablets, where the hero flows normally. */
-  --m-card-w: clamp(160px, 44vw, 260px);
+  --m-card-w: clamp(166px, 46vw, 270px);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -50,9 +50,11 @@
  */
 .stage {
   position: relative;
-  flex: 0 1 calc(330px * 1.85 + 30px);
+  flex: 0 1 calc(345px * 1.85 + 30px);
   min-height: 0;
   container-type: size;
+  /* Keeps the cards' z-indexes inside the stage so they slide under the sticky header. */
+  z-index: 0;
 }
 
 /*
@@ -63,7 +65,7 @@
  * the centre card is drawn 1.35x larger, so the stage needs that much extra height.
  */
 .fan {
-  --card-w: clamp(130px, (100cqh - 30px) * 0.54, 330px);
+  --card-w: clamp(130px, (100cqh - 30px) * 0.5, 345px);
   --card-h: calc(var(--card-w) * 4 / 3);
   /* Scales how far apart the cards sit; the layout itself is worked out in HeroFan.tsx. */
   --spread: 1;
@@ -145,33 +147,6 @@
   animation: fanIn 1s cubic-bezier(.34, 1.4, .64, 1) backwards;
 }
 
-.label {
-  position: absolute;
-  left: 50%;
-  bottom: 18px;
-  transform: translateX(-50%);
-  background: rgba(247, 242, 236, .94);
-  color: #2A2238;
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: .2em;
-  text-transform: uppercase;
-  padding: 10px 18px;
-  border-radius: 999px;
-  white-space: nowrap;
-  box-shadow: 0 6px 16px -10px rgba(42, 34, 56, .4);
-  opacity: var(--label, 1);
-  z-index: 1;
-}
-
-@media (max-width: 900px) {
-  /* Side cards are mostly covered here, so their labels would only show cut off. */
-  .card:not([aria-current="true"]) .label {
-    opacity: 0;
-  }
-}
-
 .info {
   flex: none;
   width: 100%;
@@ -186,36 +161,13 @@
   text-align: center;
 }
 
-.text {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  animation: textIn .6s ease both;
-}
-
 .name {
   margin: 0;
   font-family: var(--font-display);
   font-weight: 400;
   font-size: clamp(28px, min(2.6vw, 4.6svh), 40px);
   line-height: 1.1;
-}
-
-.blurb {
-  margin: 0;
-  max-width: 620px;
-  min-height: calc(17px * 1.65);
-  font-size: 17px;
-  line-height: 1.65;
-  color: #5F566B;
-  text-wrap: balance;
-}
-
-@media (max-width: 600px) {
-  .blurb {
-    min-height: calc(17px * 1.65 * 2);
-  }
+  animation: textIn .6s ease both;
 }
 
 .actions {
@@ -226,6 +178,13 @@
   padding-top: 2px;
 }
 
+@keyframes textIn {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+}
+
 /* Cards start stacked in the centre and spread out to their places. */
 @keyframes fanIn {
   from {
@@ -234,17 +193,10 @@
   }
 }
 
-@keyframes textIn {
-  from {
-    opacity: 0;
-    translate: 0 10px;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .card,
   .intro,
-  .text {
+  .name {
     animation: none;
     transition: none;
   }
