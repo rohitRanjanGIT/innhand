@@ -30,6 +30,7 @@ export default function Header() {
     <>
       <header style={{ background: "#32255D", color: "#F7F2EC", position: "sticky", top: 0, zIndex: 20 }}>
         <div
+          className="ih-header-grid"
           style={{
             maxWidth: 1320,
             margin: "0 auto",
@@ -75,6 +76,7 @@ export default function Header() {
 
           <Link href="/" aria-label="Innhand Creations home" style={{ display: "block", lineHeight: 0 }}>
             <Image
+              className="ih-logo"
               src="/assets/logo-word.png"
               alt="Innhand Creations"
               width={565}
@@ -85,18 +87,18 @@ export default function Header() {
           </Link>
 
           <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 2 }}>
-            <button className="ih-icon-btn ih-btn" aria-label="Search" style={iconBtn}>
+            <button className="ih-icon-btn ih-btn ih-hdr-icon" aria-label="Search" style={iconBtn}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" aria-hidden="true">
                 <circle cx="11" cy="11" r="7" />
                 <path d="m20 20-4-4" />
               </svg>
             </button>
-            <button className="ih-icon-btn ih-btn" aria-label="Wishlist" style={iconBtn}>
+            <button className="ih-icon-btn ih-btn ih-hdr-icon" aria-label="Wishlist" style={iconBtn}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" aria-hidden="true">
                 <path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.4a4.3 4.3 0 0 1 7.5 2.4C19.5 15.4 12 20 12 20z" />
               </svg>
             </button>
-            <button className="ih-icon-btn ih-btn" aria-label="Cart, 2 items" style={{ ...iconBtn, position: "relative" }}>
+            <button className="ih-icon-btn ih-btn ih-hdr-icon" aria-label="Cart, 2 items" style={{ ...iconBtn, position: "relative" }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" aria-hidden="true">
                 <path d="M5 8h14l-1.2 11.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z" />
                 <path d="M9 8V6.5a3 3 0 0 1 6 0V8" />

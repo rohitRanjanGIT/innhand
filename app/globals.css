@@ -18,3 +18,16 @@ a:hover { color: #B52D6F; }
 @media (max-width: 720px) {
   .ih-hide-sm { display: none !important; }
 }
+
+/* Narrow phones: the logo and three icons don't fit side by side at full size. */
+@media (max-width: 520px) {
+  .ih-header-grid { gap: 6px !important; }
+  .ih-logo { height: 34px !important; }
+  .ih-hdr-icon { width: 36px !important; height: 36px !important; }
+}
+
+/* Very narrow phones: centring the logo on the screen leaves no room, so centre it in the free space. */
+@media (max-width: 340px) {
+  .ih-header-grid { grid-template-columns: auto minmax(0, 1fr) auto !important; }
+  .ih-header-grid > a { justify-self: center; }
+}

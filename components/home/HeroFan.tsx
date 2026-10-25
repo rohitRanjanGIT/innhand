@@ -155,7 +155,7 @@ export default function HeroFan() {
                   src={p.image}
                   alt=""
                   fill
-                  sizes="(max-width: 900px) 280px, 340px"
+                  sizes="(max-width: 900px) 420px, 480px"
                   // All cards are above the fold: preload the first, load the rest eagerly.
                   preload={o0 === 0}
                   loading={o0 === 0 ? undefined : "eager"}

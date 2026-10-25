@@ -1,25 +1,13 @@
 /*
- * On desktop the hero fills the first screen. The heading and description keep their
- * natural height and the stage between them takes what is left, so the cards size
- * themselves to the window and the buttons never fall below the fold.
+ * Large cards: the hero is as tall as its content needs, so on short windows the
+ * description and buttons can sit below the first screen.
  */
 .section {
-  /* Announcement bar (38px) + sticky header (84px) above the hero. */
-  --chrome: 122px;
-  /* Card width on phones and tablets, where the hero flows normally. */
-  --m-card-w: clamp(170px, 46vw, 280px);
   display: flex;
   flex-direction: column;
-  justify-content: center;
   box-sizing: border-box;
-  padding: clamp(12px, 2.2svh, 28px) 0 clamp(16px, 3svh, 32px);
+  padding: clamp(12px, 2.2svh, 28px) 0 clamp(24px, 4svh, 48px);
   overflow-x: clip;
-}
-
-@media (min-width: 901px) {
-  .section {
-    height: clamp(500px, 100svh - var(--chrome), 980px);
-  }
 }
 
 .head {
@@ -44,25 +32,24 @@
 }
 
 /*
- * The stage is a size container, so the cards can be sized from the space it gets.
- * Its basis is the height the fan needs when width is the limit; when the window is
- * short it shrinks and the cards shrink with it.
+ * Card geometry lives in custom properties on the stage; the fan and the inline card
+ * transforms read --card-w, --step and --drop. The card width follows the window width
+ * and is limited a little by its height. The spread is 0.95 of a card width, tightening
+ * only when the fan would otherwise run off the screen.
  */
 .stage {
+  --card-w: clamp(180px, min(23vw, (100svh - 150px) * 0.52), 480px);
+  --card-h: calc(var(--card-w) * 4 / 3);
+  --step: min(calc(var(--card-w) * 0.95), calc((100vw - var(--card-w) - 80px) / 4));
+  --drop: calc(var(--card-w) * 0.045);
+  --top: 16px;
   position: relative;
-  flex: 0 1 calc(min((100vw - 48px) / 5, 340px) * 1.6 + 24px);
-  min-height: 0;
-  container-type: size;
+  /* The tilted, dropped outer cards make the fan about 1.2 card-heights tall. */
+  height: calc(var(--card-h) * 1.2 + 24px);
+  margin-top: clamp(8px, 1.5svh, 18px);
 }
 
-/* Card geometry lives in custom properties; the inline transforms read --step and --drop. */
 .fan {
-  --card-w: clamp(150px, min((100cqh - 30px) * 0.625, (100cqw - 48px) / 5), 340px);
-  --card-h: calc(var(--card-w) * 4 / 3);
-  --step: calc(var(--card-w) * 0.95);
-  --drop: calc(var(--card-w) * 0.045);
-  /* The tilted, dropped outer cards make the fan about 1.2 card-heights tall. */
-  --top: max(20px, (100cqh - var(--card-h) * 1.2 - 8px) / 2);
   position: absolute;
   inset: 0;
   touch-action: pan-y;
@@ -72,14 +59,8 @@
 /* Phones and tablets: overlap the cards so the side ones peek out around the centre one. */
 @media (max-width: 900px) {
   .stage {
-    flex: none;
-    height: calc(var(--m-card-w) * 1.6 + 24px);
-  }
-
-  .fan {
-    --card-w: var(--m-card-w);
+    --card-w: clamp(240px, 72vw, 420px);
     --step: calc(var(--card-w) * 0.52);
-    --top: 16px;
   }
 }
 
