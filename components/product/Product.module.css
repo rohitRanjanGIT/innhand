@@ -1,0 +1,482 @@
+.page {
+  padding: clamp(20px, 3vw, 36px) clamp(16px, 3vw, 40px) clamp(80px, 9vw, 140px);
+}
+
+.inner {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+/* ---------- Breadcrumb ---------- */
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 clamp(20px, 3vw, 36px);
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  letter-spacing: .04em;
+  color: #5F566B;
+}
+
+.crumbs li + li::before {
+  content: "/";
+  margin-right: 8px;
+  opacity: .5;
+}
+
+.crumbs a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.crumbs a:hover {
+  color: #B52D6F;
+}
+
+/* ---------- Layout: gallery beside the details, stacked on small screens ---------- */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: clamp(32px, 5vw, 80px);
+  align-items: start;
+}
+
+/* ---------- Gallery ---------- */
+.gallery {
+  /* Pinned under the sticky header while the details scroll past. */
+  position: sticky;
+  top: calc(84px + 24px);
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 16px;
+}
+
+.main {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  /* Keeps the whole picture on screen; the image crops to fit if this kicks in. */
+  max-height: calc(100svh - 84px - 48px);
+  min-height: 320px;
+  border-radius: 4px;
+  overflow: hidden;
+  animation: fadeIn .4s ease;
+}
+
+.thumbs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.thumb {
+  position: relative;
+  display: block;
+  width: 76px;
+  aspect-ratio: 4 / 5;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: .7;
+  transition: opacity .3s ease, border-color .3s ease;
+}
+
+.thumb:hover,
+.thumb[aria-current="true"] {
+  opacity: 1;
+}
+
+.thumb[aria-current="true"] {
+  border-color: #2A2238;
+}
+
+.thumb:focus-visible {
+  outline: 2px solid #B52D6F;
+  outline-offset: 2px;
+}
+
+.thumbNum {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  color: #2A2238;
+}
+
+/* ---------- Details ---------- */
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(40px, 4.4vw, 60px);
+  line-height: 1.04;
+}
+
+.priceRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.price {
+  font-family: var(--font-display);
+  font-size: 30px;
+}
+
+.note {
+  font-size: 13px;
+  letter-spacing: .04em;
+  color: #5F566B;
+}
+
+.blurb {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.7;
+  color: #5F566B;
+}
+
+.rule {
+  height: 1px;
+  margin: 6px 0;
+  border: 0;
+  background: #E2D9CE;
+}
+
+/* ---------- Options ---------- */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.legend {
+  padding: 0;
+  font-size: 12px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: #5F566B;
+}
+
+.legend strong {
+  font-weight: 500;
+  letter-spacing: .06em;
+  text-transform: none;
+  color: #2A2238;
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Real radio inputs keep native arrow-key behaviour; they sit invisibly under the styled shape. */
+.choice {
+  position: relative;
+  display: inline-flex;
+  cursor: pointer;
+}
+
+.choice input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(42, 34, 56, .18);
+  box-sizing: border-box;
+  transition: box-shadow .25s ease, transform .25s ease;
+}
+
+.choice:hover .swatch {
+  transform: scale(1.06);
+}
+
+.choice input:checked + .swatch {
+  box-shadow: 0 0 0 3px #F7F2EC, 0 0 0 4px #2A2238;
+}
+
+.choice input:focus-visible + .swatch,
+.choice input:focus-visible + .pill {
+  outline: 2px solid #B52D6F;
+  outline-offset: 5px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 18px;
+  border: 1px solid #CFC6BC;
+  border-radius: 20px;
+  font-size: 13px;
+  letter-spacing: .08em;
+  transition: background .25s ease, color .25s ease, border-color .25s ease;
+}
+
+.choice:hover .pill {
+  border-color: #2A2238;
+}
+
+.choice input:checked + .pill {
+  background: #2A2238;
+  border-color: #2A2238;
+  color: #F7F2EC;
+}
+
+.buyRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  height: 56px;
+  border: 1px solid #2A2238;
+  border-radius: 28px;
+  box-sizing: border-box;
+}
+
+.stepper button {
+  width: 48px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 28px;
+}
+
+.stepper button:disabled {
+  opacity: .3;
+  cursor: default;
+}
+
+.stepper button:focus-visible {
+  outline: 2px solid #B52D6F;
+  outline-offset: -4px;
+}
+
+.qty {
+  min-width: 28px;
+  text-align: center;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.addToCart {
+  flex: 1 1 200px;
+  justify-content: center;
+  gap: 10px;
+  height: 56px;
+  padding: 0 30px;
+  border: 0;
+  border-radius: 28px;
+  background: #32255D;
+  color: #F7F2EC;
+  font-family: inherit;
+  font-size: 13px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.addToCart:focus-visible,
+.wish:focus-visible {
+  outline: 2px solid #B52D6F;
+  outline-offset: 3px;
+}
+
+.wish {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #2A2238;
+  border-radius: 50%;
+  background: transparent;
+  color: #2A2238;
+  cursor: pointer;
+  transition: background .25s ease, color .25s ease;
+}
+
+.wish[aria-pressed="true"] {
+  color: #B52D6F;
+  border-color: #B52D6F;
+}
+
+.status {
+  min-height: 20px;
+  margin: -12px 0 0;
+  font-size: 14px;
+  color: #B52D6F;
+}
+
+/* ---------- Promises ---------- */
+.promises {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  margin: 0;
+  padding: 18px 0;
+  list-style: none;
+  border-top: 1px solid #E2D9CE;
+  border-bottom: 1px solid #E2D9CE;
+  font-size: 13px;
+  letter-spacing: .04em;
+  color: #5F566B;
+}
+
+.promises li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ---------- Accordion ---------- */
+.details {
+  border-bottom: 1px solid #E2D9CE;
+}
+
+.details summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 0;
+  list-style: none;
+  font-family: var(--font-display);
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.details summary::-webkit-details-marker {
+  display: none;
+}
+
+.details summary:focus-visible {
+  outline: 2px solid #B52D6F;
+  outline-offset: 2px;
+}
+
+.details summary svg {
+  flex: none;
+  transition: transform .3s ease;
+}
+
+.details[open] summary svg {
+  transform: rotate(45deg);
+}
+
+.details p {
+  margin: 0 0 20px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #5F566B;
+}
+
+.details a {
+  color: #B52D6F;
+}
+
+/* ---------- You may also like ---------- */
+.related {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  margin-top: clamp(80px, 9vw, 140px);
+}
+
+.relatedTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(36px, 4vw, 56px);
+  line-height: 1.05;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: 28px;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Stacked: the gallery scrolls normally, with the thumbnails in a row under the picture. */
+  .gallery {
+    position: static;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .thumbs {
+    order: 2;
+    flex-direction: row;
+  }
+
+  .thumb {
+    width: 64px;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: .4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .main,
+  .thumb,
+  .swatch,
+  .pill,
+  .wish,
+  .details summary svg {
+    animation: none;
+    transition: none;
+  }
+}
