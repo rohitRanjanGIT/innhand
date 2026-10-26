@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { shopHref } from "@/lib/products";
 import { CONTACT_EMAIL, WHATSAPP_URL, footerShop } from "@/lib/site";
 
 const colTitle = {
@@ -39,7 +40,7 @@ export default function Footer() {
           <nav aria-label="Shop" style={col(180)}>
             <span style={colTitle}>Shop</span>
             {footerShop.map((label) => (
-              <Link key={label} href="#">
+              <Link key={label} href={shopHref(label)}>
                 {label}
               </Link>
             ))}

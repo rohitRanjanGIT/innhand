@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { DISPLAY } from "./ui";
+import { shopHref } from "@/lib/products";
 import { menuSections } from "@/lib/site";
 
 const groupTitle = { fontFamily: DISPLAY, fontSize: 24 } as const;
@@ -80,7 +81,7 @@ export default function SideMenu({ open, onClose }: { open: boolean; onClose: ()
 
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <span style={{ fontFamily: DISPLAY, fontSize: 34, fontWeight: 400, lineHeight: 1.1 }}>Shop</span>
-            <Link className="ih-link" href="#" onClick={onClose} style={{ fontSize: 14, color: "#5F566B" }}>
+            <Link className="ih-link" href="/shop" onClick={onClose} style={{ fontSize: 14, color: "#5F566B" }}>
               View all pieces
             </Link>
           </div>
@@ -94,12 +95,12 @@ export default function SideMenu({ open, onClose }: { open: boolean; onClose: ()
                 </span>
                 {section.groups.map((group) => (
                   <div key={group.title} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <Link className="ih-link" href="#" onClick={onClose} style={groupTitle}>
+                    <Link className="ih-link" href={shopHref(group.title)} onClick={onClose} style={groupTitle}>
                       {group.title}
                     </Link>
                     <div style={subLinks}>
                       {group.links.map((label) => (
-                        <Link key={label} className="ih-link" href="#" onClick={onClose} style={{ fontSize: 15 }}>
+                        <Link key={label} className="ih-link" href={shopHref(label)} onClick={onClose} style={{ fontSize: 15 }}>
                           {label}
                         </Link>
                       ))}

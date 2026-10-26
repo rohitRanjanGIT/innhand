@@ -30,18 +30,12 @@ export default function Categories() {
               Find your <em style={{ fontStyle: "italic" }}>piece</em>
             </h2>
           </div>
-          <ButtonLink href="#" variant="ghost" size="sm">
+          <ButtonLink href="/shop" variant="ghost" size="sm">
             Browse all
           </ButtonLink>
         </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 220px), 1fr))",
-            gap: 20,
-          }}
-        >
+        <div className="ih-cat-grid">
           {categories.map((c) => (
             <Link key={c.name} href={c.href} className="ih-tile">
               <div className="ih-tile-media" style={{ aspectRatio: "4 / 5", background: c.bg }}>
@@ -55,7 +49,7 @@ export default function Categories() {
                     style={{ objectFit: "cover" }}
                   />
                 ) : (
-                  <PhotoTag>[{c.name} photo]</PhotoTag>
+                  <PhotoTag>[Photo]</PhotoTag>
                 )}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 4, paddingTop: 16 }}>

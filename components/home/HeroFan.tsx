@@ -298,7 +298,7 @@ export default function HeroFan() {
         </div>
         <div className={styles.actions}>
           <ButtonLink href={product.href}>View product</ButtonLink>
-          <ButtonLink href="#" variant="ghost" style={{ gap: 10 }}>
+          <ButtonLink href="/shop" variant="ghost" style={{ gap: 10 }}>
             View more
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" aria-hidden="true">
               <path d="M4 12h16M14 6l6 6-6 6" />

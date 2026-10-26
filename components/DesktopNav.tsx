@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type FocusEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { DISPLAY } from "./ui";
+import { shopHref } from "@/lib/products";
 import { categorySection, navLinks, occasionSection, type MenuGroup } from "@/lib/site";
 
 type MenuId = "shop" | "occasions";
@@ -44,7 +45,7 @@ function GroupLinks({ group, size, onNavigate }: { group: MenuGroup; size: numbe
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       <Link
         className="ih-link"
-        href="#"
+        href={shopHref(group.title)}
         onClick={onNavigate}
         style={{
           fontFamily: DISPLAY,
@@ -62,7 +63,7 @@ function GroupLinks({ group, size, onNavigate }: { group: MenuGroup; size: numbe
       <ul style={{ listStyle: "none", margin: 0, padding: "0 0 0 14px", borderLeft: "1px solid #DCD2C6", display: "flex", flexDirection: "column", gap: 6 }}>
         {group.links.map((label) => (
           <li key={label}>
-            <Link className="ih-link" href="#" onClick={onNavigate} style={{ fontSize: 15 }}>
+            <Link className="ih-link" href={shopHref(label)} onClick={onNavigate} style={{ fontSize: 15 }}>
               {label}
             </Link>
           </li>
@@ -234,7 +235,7 @@ export default function DesktopNav() {
                   >
                     Start a custom order
                   </Link>
-                  <Link className="ih-link" href="#" onClick={close} style={{ fontSize: 14, borderBottom: "1px solid currentColor", paddingBottom: 2 }}>
+                  <Link className="ih-link" href="/shop" onClick={close} style={{ fontSize: 14, borderBottom: "1px solid currentColor", paddingBottom: 2 }}>
                     View all pieces
                   </Link>
                 </div>

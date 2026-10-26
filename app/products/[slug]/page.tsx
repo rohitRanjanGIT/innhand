@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import ProductCard from "@/components/ProductCard";
 import ProductGallery from "@/components/product/ProductGallery";
 import ProductOptions from "@/components/product/ProductOptions";
 import styles from "@/components/product/Product.module.css";
 import { Eyebrow } from "@/components/ui";
-import { getProduct, products } from "@/lib/products";
+import { getCategory, getProduct, products } from "@/lib/products";
 import { WHATSAPP_URL } from "@/lib/site";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -39,22 +39,24 @@ export default async function ProductPage({ params }: Props) {
   const product = getProduct((await params).slug);
   if (!product) notFound();
 
-  const related = products.filter((p) => p.slug !== product.slug).slice(0, 4);
+  const category = getCategory(product.categorySlug);
+  // Pieces from the same category come first.
+  const related = products
+    .filter((p) => p.slug !== product.slug)
+    .sort((a, b) => Number(b.categorySlug === product.categorySlug) - Number(a.categorySlug === product.categorySlug))
+    .slice(0, 4);
 
   return (
     <main className={styles.page}>
       <div className={styles.inner}>
-        <nav aria-label="Breadcrumb">
-          <ol className={styles.crumbs}>
-            <li>
-              <Link href="/">Home</Link>
-            </li>
-            <li>
-              <Link href="#">{product.category}</Link>
-            </li>
-            <li aria-current="page">{product.name}</li>
-          </ol>
-        </nav>
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Shop", href: "/shop" },
+            ...(category ? [{ label: category.name, href: category.href }] : []),
+            { label: product.name },
+          ]}
+        />
 
         <div className={styles.layout}>
           <ProductGallery image={product.image} name={product.name} />

@@ -32,7 +32,7 @@ export default function FeaturedProducts() {
               Hand-picked <em style={{ fontStyle: "italic" }}>favourites</em>
             </h2>
           </div>
-          <ButtonLink href="#" variant="ghost" size="sm">
+          <ButtonLink href="/shop" variant="ghost" size="sm">
             View all products
           </ButtonLink>
         </div>

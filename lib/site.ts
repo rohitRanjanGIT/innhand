@@ -9,7 +9,7 @@ export const menuSections: MenuSection[] = [
   {
     heading: "By Category",
     groups: [
-      { title: "Home Décor", links: ["Planters", "Vases", "Tealight holders"] },
+      { title: "Home Décor", links: ["Planters", "Vases", "Tealight holders", "Coasters"] },
       { title: "Gifting", links: ["Trinket trays", "Jewellery boxes"] },
     ],
   },

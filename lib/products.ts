@@ -1,8 +1,10 @@
 export type Product = {
   slug: string;
   name: string;
-  /** Shop category, shown under the name. */
+  /** Shop group, shown under the name. */
   category: string;
+  /** Slug of the category the product is listed under. */
+  categorySlug: string;
   blurb: string;
   image: string;
   /** Placeholder until real prices are set. */
@@ -18,6 +20,7 @@ const catalogue: Omit<Product, "href">[] = [
     slug: "flower-vases",
     name: "Flower Vases",
     category: "Home Décor",
+    categorySlug: "vases",
     blurb: "A pair of sculptural vases, hand-poured in the colours you choose.",
     image: "/assets/cards/vases.svg",
     price: "₹[price]",
@@ -27,6 +30,7 @@ const catalogue: Omit<Product, "href">[] = [
     slug: "leaf-heart-tray",
     name: "Leaf Heart Tray",
     category: "Gifting",
+    categorySlug: "trinket-trays",
     blurb: "A heart-shaped tray with a leaf imprint, for rings, keys and little keepsakes.",
     image: "/assets/cards/heart-tray.svg",
     price: "₹[price]",
@@ -36,6 +40,7 @@ const catalogue: Omit<Product, "href">[] = [
     slug: "bubble-tray-tulip-candles",
     name: "Bubble Tray with Tulip Candles",
     category: "Gifting",
+    categorySlug: "trinket-trays",
     blurb: "A bubble tray paired with tulip candles. A gift that is ready to glow.",
     image: "/assets/cards/tulip-tray.svg",
     price: "₹[price]",
@@ -45,6 +50,7 @@ const catalogue: Omit<Product, "href">[] = [
     slug: "coaster-set",
     name: "Coaster Set",
     category: "Home Décor",
+    categorySlug: "coasters",
     blurb: "Speckled coasters for the table and the bar cart, poured in your colours.",
     image: "/assets/cards/coasters.svg",
     price: "₹[price]",
@@ -54,6 +60,7 @@ const catalogue: Omit<Product, "href">[] = [
     slug: "tealight-holders",
     name: "Tealight Holders",
     category: "Home Décor",
+    categorySlug: "tealight-holders",
     blurb: "Little holders that bring a soft glow to a shelf, a desk or a festive table.",
     image: "/assets/cards/tealights.svg",
     price: "₹[price]",
@@ -78,13 +85,72 @@ export const colours = [
 
 export const finishes = ["Marble", "Terrazzo", "Speckled", "Matte"];
 
-/** A shop category tile. Without an `image` the tile shows a tinted placeholder. */
-export type Category = { name: string; group: string; image?: string; bg: string; href: string };
+/** A shop category. Without an `image` its tile shows a tinted placeholder. */
+export type Category = {
+  slug: string;
+  name: string;
+  group: string;
+  blurb: string;
+  image?: string;
+  bg: string;
+  href: string;
+};
 
-export const categories: Category[] = [
-  { name: "Planters", group: "Home Décor", bg: "#DCDFD1", href: "#" },
-  { name: "Vases", group: "Home Décor", image: "/assets/cards/vases.svg", bg: "#DCDFD1", href: "#" },
-  { name: "Tealight holders", group: "Home Décor", image: "/assets/cards/tealights.svg", bg: "#E1DAD3", href: "#" },
-  { name: "Trinket trays", group: "Gifting", image: "/assets/cards/heart-tray.svg", bg: "#EBCFC8", href: "#" },
-  { name: "Jewellery boxes", group: "Gifting", bg: "#D3DAE0", href: "#" },
+const categoryList: Omit<Category, "href">[] = [
+  {
+    slug: "planters",
+    name: "Planters",
+    group: "Home Décor",
+    blurb: "Small planters for succulents and cuttings, poured in your colours.",
+    bg: "#DCDFD1",
+  },
+  {
+    slug: "vases",
+    name: "Vases",
+    group: "Home Décor",
+    blurb: "Sculptural vases for dried stems and fresh blooms.",
+    image: "/assets/cards/vases.svg",
+    bg: "#DCDFD1",
+  },
+  {
+    slug: "tealight-holders",
+    name: "Tealight holders",
+    group: "Home Décor",
+    blurb: "Holders that bring a soft glow to a shelf, a desk or a festive table.",
+    image: "/assets/cards/tealights.svg",
+    bg: "#E1DAD3",
+  },
+  {
+    slug: "coasters",
+    name: "Coasters",
+    group: "Home Décor",
+    blurb: "Speckled and marbled coasters for the table and the bar cart.",
+    image: "/assets/cards/coasters.svg",
+    bg: "#E4C9B6",
+  },
+  {
+    slug: "trinket-trays",
+    name: "Trinket trays",
+    group: "Gifting",
+    blurb: "Little trays for rings, keys and keepsakes. A gift that stays.",
+    image: "/assets/cards/heart-tray.svg",
+    bg: "#EBCFC8",
+  },
+  {
+    slug: "jewellery-boxes",
+    name: "Jewellery boxes",
+    group: "Gifting",
+    blurb: "Lidded boxes that keep jewellery safe, and look lovely doing it.",
+    bg: "#D3DAE0",
+  },
 ];
+
+export const categories: Category[] = categoryList.map((c) => ({ ...c, href: `/shop/${c.slug}` }));
+
+export const getCategory = (slug: string) => categories.find((c) => c.slug === slug);
+
+export const productsIn = (slug: string) => products.filter((p) => p.categorySlug === slug);
+
+/** Shop link for a menu label: its category page when one matches, otherwise the whole shop. */
+export const shopHref = (label: string) =>
+  categories.find((c) => c.name.toLowerCase() === label.toLowerCase())?.href ?? "/shop";
