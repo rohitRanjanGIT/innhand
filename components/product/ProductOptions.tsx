@@ -1,10 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import QtyStepper from "@/components/QtyStepper";
 import { colours, finishes } from "@/lib/products";
 import styles from "./Product.module.css";
 
-const MAX_QTY = 20;
 const CONFIRM_MS = 2200;
 
 export default function ProductOptions({ name }: { name: string }) {
@@ -59,17 +60,7 @@ export default function ProductOptions({ name }: { name: string }) {
       </fieldset>
 
       <div className={styles.buyRow}>
-        <div className={styles.stepper} role="group" aria-label="Quantity">
-          <button type="button" aria-label="Decrease quantity" disabled={qty <= 1} onClick={() => setQty(qty - 1)}>
-            −
-          </button>
-          <span className={styles.qty} aria-live="polite">
-            {qty}
-          </span>
-          <button type="button" aria-label="Increase quantity" disabled={qty >= MAX_QTY} onClick={() => setQty(qty + 1)}>
-            +
-          </button>
-        </div>
+        <QtyStepper value={qty} onChange={setQty} />
 
         <button type="button" className={`ih-btn ih-btn-primary ${styles.addToCart}`} onClick={() => setAdded(true)}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" aria-hidden="true">
@@ -93,7 +84,11 @@ export default function ProductOptions({ name }: { name: string }) {
       </div>
 
       <p className={styles.status} role="status">
-        {added ? `Added to cart ✓ ${qty} × ${name}, ${colour}, ${finish}` : ""}
+        {added && (
+          <>
+            Added to cart ✓ {qty} × {name}, {colour}, {finish}. <Link href="/cart">View cart</Link>
+          </>
+        )}
       </p>
     </div>
   );

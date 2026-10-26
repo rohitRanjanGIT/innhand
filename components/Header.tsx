@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import DesktopNav from "./DesktopNav";
 import SideMenu from "./SideMenu";
+import { demoCartCount } from "@/lib/account";
 import { DESKTOP_NAV_MIN_WIDTH } from "@/lib/site";
 
 const iconBtn = {
@@ -97,12 +98,24 @@ export default function Header() {
                 <path d="m20 20-4-4" />
               </svg>
             </button>
-            <button className="ih-icon-btn ih-btn ih-hdr-icon" aria-label="Wishlist" style={iconBtn}>
+            <Link href="/account" className="ih-icon-btn ih-btn ih-hdr-icon" aria-label="My account" style={iconBtn}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" aria-hidden="true">
+                <circle cx="12" cy="8.5" r="3.8" />
+                <path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5" />
+              </svg>
+            </Link>
+            {/* Phones reach the wishlist from the account page and the menu instead. */}
+            <Link href="/wishlist" className="ih-icon-btn ih-btn ih-hdr-icon ih-hide-sm" aria-label="Wishlist" style={iconBtn}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" aria-hidden="true">
                 <path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.4a4.3 4.3 0 0 1 7.5 2.4C19.5 15.4 12 20 12 20z" />
               </svg>
-            </button>
-            <button className="ih-icon-btn ih-btn ih-hdr-icon" aria-label="Cart, 2 items" style={{ ...iconBtn, position: "relative" }}>
+            </Link>
+            <Link
+              href="/cart"
+              className="ih-icon-btn ih-btn ih-hdr-icon"
+              aria-label={`Cart, ${demoCartCount} items`}
+              style={{ ...iconBtn, position: "relative" }}
+            >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" aria-hidden="true">
                 <path d="M5 8h14l-1.2 11.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z" />
                 <path d="M9 8V6.5a3 3 0 0 1 6 0V8" />
@@ -125,9 +138,9 @@ export default function Header() {
                   boxSizing: "border-box",
                 }}
               >
-                2
+                {demoCartCount}
               </span>
-            </button>
+            </Link>
           </div>
         </div>
       </header>

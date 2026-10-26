@@ -6,7 +6,7 @@ import ProductGallery from "@/components/product/ProductGallery";
 import ProductOptions from "@/components/product/ProductOptions";
 import styles from "@/components/product/Product.module.css";
 import { Eyebrow } from "@/components/ui";
-import { getCategory, getProduct, products } from "@/lib/products";
+import { formatPrice, getCategory, getProduct, products } from "@/lib/products";
 import { WHATSAPP_URL } from "@/lib/site";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -65,7 +65,7 @@ export default async function ProductPage({ params }: Props) {
             <Eyebrow>{product.category}</Eyebrow>
             <h1 className={styles.title}>{product.name}</h1>
             <div className={styles.priceRow}>
-              <span className={styles.price}>{product.price}</span>
+              <span className={styles.price}>{formatPrice(product.price)}</span>
               <span className={styles.note}>Made to order</span>
             </div>
             <p className={styles.blurb}>{product.blurb}</p>

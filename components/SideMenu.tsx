@@ -113,6 +113,12 @@ export default function SideMenu({ open, onClose }: { open: boolean; onClose: ()
 
           <div style={{ height: 1, background: "#E2D9CE" }} />
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <Link className="ih-link" href="/account" onClick={onClose} style={{ fontSize: 15 }}>
+              My Account
+            </Link>
+            <Link className="ih-link" href="/wishlist" onClick={onClose} style={{ fontSize: 15 }}>
+              Wishlist
+            </Link>
             <Link className="ih-link" href="/our-story" onClick={onClose} style={{ fontSize: 15 }}>
               Our Story
             </Link>

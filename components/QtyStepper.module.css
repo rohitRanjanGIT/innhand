@@ -1,0 +1,51 @@
+.stepper {
+  --h: 56px;
+  display: inline-flex;
+  align-items: center;
+  height: var(--h);
+  border: 1px solid #2A2238;
+  border-radius: calc(var(--h) / 2);
+  box-sizing: border-box;
+}
+
+.small {
+  --h: 40px;
+}
+
+.stepper button {
+  width: calc(var(--h) * .86);
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: calc(var(--h) / 2);
+  background: none;
+  color: inherit;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.small button {
+  font-size: 17px;
+}
+
+.stepper button:disabled {
+  opacity: .3;
+  cursor: default;
+}
+
+.stepper button:focus-visible {
+  outline: 2px solid #B52D6F;
+  outline-offset: -4px;
+}
+
+.value {
+  min-width: 28px;
+  text-align: center;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.small .value {
+  min-width: 22px;
+  font-size: 15px;
+}

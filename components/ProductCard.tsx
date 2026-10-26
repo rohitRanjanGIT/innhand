@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { Product } from "@/lib/products";
+import { formatPrice, type Product } from "@/lib/products";
 import { DISPLAY } from "./ui";
 
-/** Catalogue tile: image, category, name and a "View product" link. */
+/** Catalogue tile: image, category, name, price and a "View product" link. */
 export default function ProductCard({ product: p }: { product: Product }) {
   return (
     <Link href={p.href} className="ih-tile">
@@ -20,6 +20,7 @@ export default function ProductCard({ product: p }: { product: Product }) {
       <div style={{ display: "flex", flexDirection: "column", gap: 6, paddingTop: 18 }}>
         <span style={{ fontSize: 13, color: "#5F566B", letterSpacing: "0.04em" }}>{p.category}</span>
         <span style={{ fontFamily: DISPLAY, fontSize: 26, lineHeight: 1.15 }}>{p.name}</span>
+        <span style={{ fontSize: 15, color: "#2A2238" }}>{formatPrice(p.price)}</span>
         <span className="ih-tile-link">
           View product
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" aria-hidden="true">

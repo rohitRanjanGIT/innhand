@@ -7,8 +7,8 @@ export type Product = {
   categorySlug: string;
   blurb: string;
   image: string;
-  /** Placeholder until real prices are set. */
-  price: string;
+  /** Price in rupees. Dummy figures until real prices are set. */
+  price: number;
   /** Placeholder until real measurements are set. */
   size: string;
   href: string;
@@ -23,7 +23,7 @@ const catalogue: Omit<Product, "href">[] = [
     categorySlug: "vases",
     blurb: "A pair of sculptural vases, hand-poured in the colours you choose.",
     image: "/assets/cards/vases.svg",
-    price: "₹[price]",
+    price: 1850,
     size: "[dimensions]",
   },
   {
@@ -33,7 +33,7 @@ const catalogue: Omit<Product, "href">[] = [
     categorySlug: "trinket-trays",
     blurb: "A heart-shaped tray with a leaf imprint, for rings, keys and little keepsakes.",
     image: "/assets/cards/heart-tray.svg",
-    price: "₹[price]",
+    price: 650,
     size: "[dimensions]",
   },
   {
@@ -43,7 +43,7 @@ const catalogue: Omit<Product, "href">[] = [
     categorySlug: "trinket-trays",
     blurb: "A bubble tray paired with tulip candles. A gift that is ready to glow.",
     image: "/assets/cards/tulip-tray.svg",
-    price: "₹[price]",
+    price: 1250,
     size: "[dimensions]",
   },
   {
@@ -53,7 +53,7 @@ const catalogue: Omit<Product, "href">[] = [
     categorySlug: "coasters",
     blurb: "Speckled coasters for the table and the bar cart, poured in your colours.",
     image: "/assets/cards/coasters.svg",
-    price: "₹[price]",
+    price: 1100,
     size: "[dimensions]",
   },
   {
@@ -63,7 +63,7 @@ const catalogue: Omit<Product, "href">[] = [
     categorySlug: "tealight-holders",
     blurb: "Little holders that bring a soft glow to a shelf, a desk or a festive table.",
     image: "/assets/cards/tealights.svg",
-    price: "₹[price]",
+    price: 750,
     size: "[dimensions]",
   },
 ];
@@ -71,6 +71,14 @@ const catalogue: Omit<Product, "href">[] = [
 export const products: Product[] = catalogue.map((p) => ({ ...p, href: `/products/${p.slug}` }));
 
 export const getProduct = (slug: string) => products.find((p) => p.slug === slug);
+
+/** Rupees with Indian digit grouping, e.g. ₹1,25,000. Done by hand so server and browser always agree. */
+export function formatPrice(rupees: number) {
+  const digits = String(Math.round(rupees));
+  const last3 = digits.slice(-3);
+  const rest = digits.slice(0, -3);
+  return `₹${rest ? `${rest.replace(/\B(?=(\d{2})+(?!\d))/g, ",")},` : ""}${last3}`;
+}
 
 /** Colours every piece can be poured in. */
 export const colours = [
