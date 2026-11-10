@@ -8,19 +8,20 @@ import styles from "./Product.module.css";
 // Tints for the extra shots until there are real photos of each piece.
 const placeholders = ["#EBCFC8", "#DCDFD1", "#D3DAE0"];
 
-export default function ProductGallery({ image, name }: { image: string; name: string }) {
+export default function ProductGallery({ images, name }: { images: string[]; name: string }) {
   const [shown, setShown] = useState(0);
-  const shots = [image, ...placeholders];
+  // A lone photo is padded with tinted placeholders; a real set of photos is shown as it is.
+  const shots = images.length > 1 ? images : [...images, ...placeholders];
 
   const render = (i: number, sizes: string, main: boolean) =>
-    i === 0 ? (
+    i < images.length ? (
       <Image
-        src={image}
-        alt={main ? name : ""}
+        src={images[i]}
+        alt={main ? (i === 0 ? name : `${name}, photo ${i + 1}`) : ""}
         fill
         sizes={sizes}
-        preload={main}
-        unoptimized={image.endsWith(".svg")}
+        preload={main && i === 0}
+        unoptimized={images[i].endsWith(".svg")}
         style={{ objectFit: "cover" }}
       />
     ) : (

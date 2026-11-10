@@ -1,9 +1,9 @@
-import { products } from "@/lib/products";
+import { featuredProducts } from "@/lib/products";
 import ProductCard from "../ProductCard";
 import { ButtonLink, DISPLAY, Eyebrow } from "../ui";
 
-// Four to a row on desktop; swap for a `featured` flag once there is real catalogue data.
-const featured = products.slice(0, 4);
+// Four to a row on desktop.
+const featured = featuredProducts.slice(0, 4);
 
 export default function FeaturedProducts() {
   return (

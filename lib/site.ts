@@ -9,7 +9,7 @@ export const menuSections: MenuSection[] = [
   {
     heading: "By Category",
     groups: [
-      { title: "Home Décor", links: ["Planters", "Vases", "Tealight holders", "Coasters"] },
+      { title: "Home Décor", links: ["Planters", "Vases", "Candles & tealights", "Coasters"] },
       { title: "Gifting", links: ["Trinket trays", "Jewellery boxes"] },
     ],
   },
@@ -17,7 +17,7 @@ export const menuSections: MenuSection[] = [
     heading: "By Occasion",
     groups: [
       { title: "Diwali Gifting", links: ["Candles with trays"], highlight: true },
-      { title: "Housewarming", links: ["Planters", "Trays", "Candles"] },
+      { title: "Housewarming", links: ["Planters", "Trays", "Candles & tealights"] },
       { title: "Corporate & Hotels", links: ["Test tube planters", "Coaster sets"] },
     ],
   },

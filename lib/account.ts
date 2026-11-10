@@ -9,24 +9,27 @@ export type CartLine = LineItem & { id: string };
 
 export const demoCart: CartLine[] = [
   { id: "line-1", slug: "leaf-heart-tray", colour: "Blush", finish: "Marble", qty: 1 },
-  { id: "line-2", slug: "tealight-holders", colour: "Sage", finish: "Speckled", qty: 2 },
+  { id: "line-2", slug: "spherical-tealight-holder", colour: "Sage", finish: "Speckled", qty: 2 },
 ];
 
 /** Shown on the header's cart badge. */
 export const demoCartCount = demoCart.reduce((n, l) => n + l.qty, 0);
 
-export const demoWishlist = ["flower-vases", "coaster-set", "bubble-tray-tulip-candles"];
+export const demoWishlist = ["donut-vase", "hexagonal-coaster-set", "tulip-candle"];
 
 export const SHIPPING_FEE = 99;
 export const FREE_SHIPPING_FROM = 1500;
 
 export const shippingFor = (subtotal: number) => (subtotal === 0 || subtotal >= FREE_SHIPPING_FROM ? 0 : SHIPPING_FEE);
 
-/** Pairs each line with its product, dropping any whose product no longer exists. */
-export function withProducts<T extends LineItem>(lines: T[]): (T & { product: Product })[] {
+/** A product with a fixed price, so it can be totalled. */
+export type PricedProduct = Product & { price: number };
+
+/** Pairs each line with its product, dropping any that no longer exists or is priced on request. */
+export function withProducts<T extends LineItem>(lines: T[]): (T & { product: PricedProduct })[] {
   return lines.flatMap((l) => {
     const product = getProduct(l.slug);
-    return product ? [{ ...l, product }] : [];
+    return product && product.price !== null ? [{ ...l, product: product as PricedProduct }] : [];
   });
 }
 
@@ -52,15 +55,15 @@ export const demoOrders: Order[] = [
     id: "IH-1048",
     placed: "21 Oct 2026",
     status: "Being poured",
-    items: [{ slug: "flower-vases", colour: "Sage", finish: "Terrazzo", qty: 1 }],
+    items: [{ slug: "donut-vase", colour: "Sage", finish: "Terrazzo", qty: 1 }],
   },
   {
     id: "IH-1031",
     placed: "2 Oct 2026",
     status: "Shipped",
     items: [
-      { slug: "bubble-tray-tulip-candles", colour: "Mist", finish: "Matte", qty: 1 },
-      { slug: "tealight-holders", colour: "Ivory", finish: "Speckled", qty: 2 },
+      { slug: "bubble-tray", colour: "Mist", finish: "Matte", qty: 1 },
+      { slug: "tulip-candle", colour: "Ivory", finish: "Speckled", qty: 2 },
     ],
   },
   {
@@ -68,7 +71,7 @@ export const demoOrders: Order[] = [
     placed: "14 Aug 2026",
     status: "Delivered",
     items: [
-      { slug: "coaster-set", colour: "Plum", finish: "Marble", qty: 2 },
+      { slug: "hexagonal-coaster-set", colour: "Plum", finish: "Marble", qty: 2 },
       { slug: "leaf-heart-tray", colour: "Blush", finish: "Matte", qty: 1 },
     ],
   },

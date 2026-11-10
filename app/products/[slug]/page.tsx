@@ -6,7 +6,7 @@ import ProductGallery from "@/components/product/ProductGallery";
 import ProductOptions from "@/components/product/ProductOptions";
 import styles from "@/components/product/Product.module.css";
 import { Eyebrow } from "@/components/ui";
-import { formatPrice, getCategory, getProduct, products } from "@/lib/products";
+import { getCategory, getProduct, priceLabel, products } from "@/lib/products";
 import { WHATSAPP_URL } from "@/lib/site";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -59,20 +59,20 @@ export default async function ProductPage({ params }: Props) {
         />
 
         <div className={styles.layout}>
-          <ProductGallery image={product.image} name={product.name} />
+          <ProductGallery images={product.gallery ?? [product.image]} name={product.name} />
 
           <div className={styles.info}>
             <Eyebrow>{product.category}</Eyebrow>
             <h1 className={styles.title}>{product.name}</h1>
             <div className={styles.priceRow}>
-              <span className={styles.price}>{formatPrice(product.price)}</span>
-              <span className={styles.note}>Made to order</span>
+              <span className={styles.price}>{priceLabel(product)}</span>
+              <span className={styles.note}>{product.price === null ? "Message us for a quote" : "Made to order"}</span>
             </div>
             <p className={styles.blurb}>{product.blurb}</p>
 
             <hr className={styles.rule} />
 
-            <ProductOptions name={product.name} />
+            <ProductOptions name={product.name} onRequest={product.price === null} />
 
             <ul className={styles.promises}>
               {promises.map((text) => (

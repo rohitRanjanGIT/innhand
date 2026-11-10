@@ -3,7 +3,7 @@
 import Image from "next/image";
 import type { FocusEvent, KeyboardEvent, PointerEvent } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { products } from "@/lib/products";
+import { featuredProducts as products } from "@/lib/products";
 import { ButtonLink, Eyebrow } from "../ui";
 import styles from "./HeroFan.module.css";
 

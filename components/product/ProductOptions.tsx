@@ -4,11 +4,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import QtyStepper from "@/components/QtyStepper";
 import { colours, finishes } from "@/lib/products";
+import { WHATSAPP_URL } from "@/lib/site";
 import styles from "./Product.module.css";
 
 const CONFIRM_MS = 2200;
 
-export default function ProductOptions({ name }: { name: string }) {
+/** `onRequest` is for pieces without a set price: the cart button becomes a link to ask for a quote. */
+export default function ProductOptions({ name, onRequest = false }: { name: string; onRequest?: boolean }) {
   const [colour, setColour] = useState(colours[0].name);
   const [finish, setFinish] = useState(finishes[0]);
   const [qty, setQty] = useState(1);
@@ -62,13 +64,19 @@ export default function ProductOptions({ name }: { name: string }) {
       <div className={styles.buyRow}>
         <QtyStepper value={qty} onChange={setQty} />
 
-        <button type="button" className={`ih-btn ih-btn-primary ${styles.addToCart}`} onClick={() => setAdded(true)}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" aria-hidden="true">
-            <path d="M5 8h14l-1.2 11.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z" />
-            <path d="M9 8V6.5a3 3 0 0 1 6 0V8" />
-          </svg>
-          Add to cart
-        </button>
+        {onRequest ? (
+          <a className={`ih-btn ih-btn-primary ${styles.addToCart}`} href={WHATSAPP_URL}>
+            Ask for a quote
+          </a>
+        ) : (
+          <button type="button" className={`ih-btn ih-btn-primary ${styles.addToCart}`} onClick={() => setAdded(true)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" aria-hidden="true">
+              <path d="M5 8h14l-1.2 11.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z" />
+              <path d="M9 8V6.5a3 3 0 0 1 6 0V8" />
+            </svg>
+            Add to cart
+          </button>
+        )}
 
         <button
           type="button"

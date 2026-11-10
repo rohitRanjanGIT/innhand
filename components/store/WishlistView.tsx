@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { demoWishlist } from "@/lib/account";
-import { formatPrice, getProduct, type Product } from "@/lib/products";
+import { getProduct, priceLabel, type Product } from "@/lib/products";
 import { DISPLAY } from "../ui";
 import EmptyState from "./EmptyState";
 import styles from "./Store.module.css";
@@ -59,7 +59,7 @@ export default function WishlistView() {
                 <div className={styles.wishText}>
                   <span className={styles.lineCat}>{p.category}</span>
                   <span style={{ fontFamily: DISPLAY, fontSize: 26, lineHeight: 1.15 }}>{p.name}</span>
-                  <span>{formatPrice(p.price)}</span>
+                  <span>{priceLabel(p)}</span>
                 </div>
               </Link>
               <button
