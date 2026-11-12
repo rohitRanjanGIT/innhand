@@ -1,7 +1,7 @@
 import "server-only";
 import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { categories, combos, media, navGroups, navLinks, navSections, products, tags, user } from "@/db/schema";
+import { categories, combos, media, navGroups, navLinks, navSections, productTags, products, tags, user } from "@/db/schema";
 import { readSettingsUncached } from "@/lib/data/settings";
 import { imageUrl } from "@/lib/images";
 import { requireAdmin } from "@/lib/session";
@@ -57,16 +57,27 @@ export async function listTags() {
       name: tags.name,
       slug: tags.slug,
       blurb: tags.blurb,
+      bgColour: tags.bgColour,
+      active: tags.active,
       imageId: tags.imageId,
       imageKey: media.r2Key,
       products: sql<number>`(select count(*)::int from product_tags pt where pt.tag_id = "tags"."id")`,
     })
     .from(tags)
     .leftJoin(media, eq(media.id, tags.imageId))
-    .orderBy(asc(tags.name));
+    .orderBy(asc(tags.sort), asc(tags.name));
   return rows.map(({ imageKey, ...r }) => ({ ...r, imageUrl: imageKey ? imageUrl(imageKey, "thumb") : null }));
 }
 export type AdminTag = Awaited<ReturnType<typeof listTags>>[number];
+
+/** Occasion id → ids of the products in it. */
+export async function listTagProductIds() {
+  await requireAdmin();
+  const rows = await db.select({ tagId: productTags.tagId, productId: productTags.productId }).from(productTags);
+  const out: Record<string, string[]> = {};
+  for (const r of rows) (out[r.tagId] ??= []).push(r.productId);
+  return out;
+}
 
 /** Sections → groups → links, plus the rows a link can point at. */
 export async function getNavEditor() {

@@ -38,6 +38,9 @@ export const tags = pgTable("tags", {
   slug: text("slug").notNull().unique(),
   blurb: text("blurb").notNull().default(""),
   imageId: uuid("image_id").references(() => media.id, { onDelete: "set null" }),
+  bgColour: text("bg_colour").notNull().default("#E1DAD3"),
+  sort: sort(),
+  active: boolean("active").notNull().default(true),
 });
 
 export const productStatus = ["draft", "active", "archived"] as const;

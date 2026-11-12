@@ -103,7 +103,7 @@ export function DetailsTab({ productId, options }: { productId: string; options:
               <FieldError message={errors.categoryId?.message} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="p-tags">Tags</Label>
+              <Label htmlFor="p-tags">Occasions</Label>
               <Controller
                 control={control}
                 name="tagIds"

@@ -120,8 +120,15 @@ export const tagSchema = z.object({
   slug,
   blurb: z.string().trim().max(1000),
   imageId: id.nullable(),
+  bgColour: hex,
+  active: z.boolean(),
 });
 export type TagInput = z.input<typeof tagSchema>;
+
+export const tagReorderSchema = z.object({ ids: z.array(id).min(1).max(1000) });
+
+/** One product going into, or out of, an occasion. */
+export const tagProductSchema = z.object({ id, productId: id });
 
 // ---------- Navigation ----------
 

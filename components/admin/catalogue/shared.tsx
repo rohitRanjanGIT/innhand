@@ -2,7 +2,7 @@
 
 import { useState, useTransition, type ReactNode } from "react";
 import { toast } from "sonner";
-import { ImageOff, Loader2, Trash2, X } from "lucide-react";
+import { ChevronDown, ImageOff, Loader2, Trash2, X } from "lucide-react";
 import type { ActionResult } from "@/lib/admin/action";
 import { imageUrl } from "@/lib/images";
 import { cn } from "@/lib/utils";
@@ -52,6 +52,40 @@ export function useActionRunner() {
     });
   }
   return [pending, run] as const;
+}
+
+/** Which cards are folded shut. Everything starts open. */
+export function useCollapsed() {
+  const [closed, setClosed] = useState<Set<string>>(() => new Set());
+  return {
+    isOpen: (id: string) => !closed.has(id),
+    toggle: (id: string) =>
+      setClosed((prev) => {
+        const next = new Set(prev);
+        if (!next.delete(id)) next.add(id);
+        return next;
+      }),
+    /** Opens or closes every card in `ids`. */
+    setAll: (ids: string[], open: boolean) => setClosed(open ? new Set() : new Set(ids)),
+    anyOpen: (ids: string[]) => ids.some((id) => !closed.has(id)),
+  };
+}
+
+/** The chevron that folds a card's nested list. */
+export function CollapseToggle({ open, onToggle, label }: { open: boolean; onToggle: () => void; label: string }) {
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon-sm"
+      aria-expanded={open}
+      aria-label={`${open ? "Collapse" : "Expand"} ${label}`}
+      title={open ? "Collapse" : "Expand"}
+      onClick={onToggle}
+    >
+      <ChevronDown className={cn("transition-transform", !open && "-rotate-90")} />
+    </Button>
+  );
 }
 
 /** Flattens server fieldErrors to the first message per field. */

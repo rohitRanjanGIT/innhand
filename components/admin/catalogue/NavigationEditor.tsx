@@ -55,7 +55,7 @@ type Editing =
 
 const TYPE_LABEL: Record<TargetType, string> = {
   category: "Category",
-  tag: "Tag / occasion",
+  tag: "Occasion",
   product: "Product",
   combo: "Combo",
   url: "Web address",
@@ -408,7 +408,7 @@ function LinkForm({ initial, targets, onDone }: { initial: NavLinkInput; targets
     <form onSubmit={submit} className="grid gap-4" noValidate>
       <DialogHeader>
         <DialogTitle>{d.id ? "Edit link" : "Add link"}</DialogTitle>
-        <DialogDescription>Point at a category, tag, product or combo, or type a web address.</DialogDescription>
+        <DialogDescription>Point at a category, occasion, product or combo, or type a web address.</DialogDescription>
       </DialogHeader>
       <Field label="Links to" htmlFor="link-type">
         <Select

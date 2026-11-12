@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
@@ -15,6 +15,7 @@ import {
   Settings,
   LogOut,
   ExternalLink,
+  Loader2,
 } from "lucide-react";
 import {
   Sidebar,
@@ -44,10 +45,15 @@ const groups = [
     items: [
       { href: "/admin/products", label: "Products", icon: Package },
       { href: "/admin/combos", label: "Combos", icon: Layers },
-      { href: "/admin/categories", label: "Categories", icon: FolderTree },
-      { href: "/admin/tags", label: "Tags", icon: Tags },
       { href: "/admin/finishes", label: "Finishes", icon: Brush },
       { href: "/admin/colours", label: "Colours", icon: Palette },
+    ],
+  },
+  {
+    label: "Categories & Occasions",
+    items: [
+      { href: "/admin/categories", label: "Categories", icon: FolderTree },
+      { href: "/admin/occasions", label: "Occasions", icon: Tags },
     ],
   },
   {
@@ -59,6 +65,17 @@ const groups = [
     ],
   },
 ];
+
+/** Spinner on the sidebar link that was just clicked. Always rendered (opacity only) so nothing shifts. */
+function LinkPending() {
+  const { pending } = useLinkStatus();
+  return (
+    <Loader2
+      aria-hidden
+      className={`ml-auto size-3.5 animate-spin transition-opacity ${pending ? "opacity-100" : "opacity-0"}`}
+    />
+  );
+}
 
 export default function AdminShell({
   admin,
@@ -96,6 +113,7 @@ export default function AdminShell({
                         <Link href={item.href}>
                           <item.icon />
                           <span>{item.label}</span>
+                          <LinkPending />
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>

@@ -77,7 +77,7 @@ export const productSchema = z
       ctx.addIssue({ code: "custom", path: ["setSizes"], message: "Set sizes start at 2" });
     }
     if (new Set(p.tagIds).size !== p.tagIds.length) {
-      ctx.addIssue({ code: "custom", path: ["tagIds"], message: "A tag is listed twice" });
+      ctx.addIssue({ code: "custom", path: ["tagIds"], message: "An occasion is listed twice" });
     }
     if (new Set(p.relatedIds).size !== p.relatedIds.length) {
       ctx.addIssue({ code: "custom", path: ["relatedIds"], message: "A similar product is listed twice" });

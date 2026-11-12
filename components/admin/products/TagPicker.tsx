@@ -15,7 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/admin/ui/p
 import type { TagOption } from "@/lib/admin/queries/products";
 import { cn } from "@/lib/utils";
 
-/** Multi-select for tags (occasions, search, similar products). */
+/** Multi-select for occasions (also used for search and similar products). */
 export function TagPicker({
   tags,
   value,
@@ -37,15 +37,15 @@ export function TagPicker({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button id={id} type="button" variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between font-normal">
-            <span className="text-muted-foreground">{value.length ? `${value.length} selected` : "Add tags"}</span>
+            <span className="text-muted-foreground">{value.length ? `${value.length} selected` : "Add occasions"}</span>
             <ChevronsUpDown className="opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-(--radix-popover-trigger-width) p-0" align="start">
           <Command>
-            <CommandInput placeholder="Search tags" />
+            <CommandInput placeholder="Search occasions" />
             <CommandList>
-              <CommandEmpty>No tags found. Add them under Tags.</CommandEmpty>
+              <CommandEmpty>No occasions found. Add them under Occasions.</CommandEmpty>
               <CommandGroup>
                 {tags.map((t) => (
                   <CommandItem key={t.id} value={t.name} onSelect={() => toggle(t.id)}>
@@ -62,12 +62,12 @@ export function TagPicker({
         <div className="flex flex-wrap gap-1.5">
           {value.map((tagId) => (
             <Badge key={tagId} variant="secondary" className="gap-1 pr-1">
-              {byId.get(tagId)?.name ?? "Unknown tag"}
+              {byId.get(tagId)?.name ?? "Unknown occasion"}
               <button
                 type="button"
                 onClick={() => toggle(tagId)}
                 className="rounded-full p-0.5 hover:bg-background"
-                aria-label={`Remove ${byId.get(tagId)?.name ?? "tag"}`}
+                aria-label={`Remove ${byId.get(tagId)?.name ?? "occasion"}`}
               >
                 <X className="size-3" />
               </button>

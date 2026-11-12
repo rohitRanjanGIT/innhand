@@ -92,7 +92,8 @@ export async function loadOccasions(): Promise<Occasion[]> {
     .select({ id: tags.id, name: tags.name, slug: tags.slug, blurb: tags.blurb, image: media.r2Key })
     .from(tags)
     .leftJoin(media, eq(media.id, tags.imageId))
-    .orderBy(asc(tags.name));
+    .where(eq(tags.active, true))
+    .orderBy(asc(tags.sort), asc(tags.name));
   return rows.map((t) => ({ ...t, href: `/occasions/${t.slug}` }));
 }
 

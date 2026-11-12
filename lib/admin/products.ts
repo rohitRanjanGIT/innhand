@@ -156,7 +156,7 @@ export const saveProduct = adminAction(saveProductSchema, async ({ id, values: v
     }
     if (v.tagIds.length > 0) {
       const found = await tx.select({ id: tags.id }).from(tags).where(inArray(tags.id, v.tagIds));
-      if (found.length !== v.tagIds.length) throw new ActionError("One of the tags no longer exists.");
+      if (found.length !== v.tagIds.length) throw new ActionError("One of the occasions no longer exists.");
     }
     if (v.relatedIds.includes(id)) throw new ActionError("A product can't be similar to itself.");
     if (v.relatedIds.length > 0) {

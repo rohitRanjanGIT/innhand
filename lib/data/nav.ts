@@ -49,7 +49,7 @@ export async function loadNav(): Promise<MenuSection[]> {
   const idsOf = (type: Target["type"]) => [...new Set(links.filter((l) => l.type === type && l.id).map((l) => l.id!))];
   const [cats, tagRows, productRows, comboRows] = await Promise.all([
     loadCategories(),
-    db.select({ id: tags.id, slug: tags.slug, name: tags.name }).from(tags),
+    db.select({ id: tags.id, slug: tags.slug, name: tags.name }).from(tags).where(eq(tags.active, true)),
     idsOf("product").length
       ? db
           .select({ id: products.id, slug: products.slug, status: products.status })

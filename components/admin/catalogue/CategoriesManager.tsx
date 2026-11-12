@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/admin/ui/switch";
 import { Textarea } from "@/components/admin/ui/textarea";
 import {
+  CollapseToggle,
   ColourInput,
   ConfirmButton,
   EmptyState,
@@ -30,6 +31,7 @@ import {
   SavingIcon,
   firstErrors,
   useActionRunner,
+  useCollapsed,
   type ImageValue,
 } from "./shared";
 
@@ -68,6 +70,8 @@ const toDraft = (c: AdminCategory): Draft => ({
 export default function CategoriesManager({ tree }: { tree: AdminCategoryHead[] }) {
   const [editing, setEditing] = useState<Draft | null>(null);
   const [, run] = useActionRunner();
+  const fold = useCollapsed();
+  const headIds = tree.map((h) => h.id);
 
   const addHead = (
     <Button onClick={() => setEditing(blank(null))}>
@@ -86,6 +90,7 @@ export default function CategoriesManager({ tree }: { tree: AdminCategoryHead[] 
     return (
       <div className="flex items-center gap-3 p-2 pr-3">
         <DragHandle {...handle} />
+        {isHead && <CollapseToggle open={fold.isOpen(c.id)} onToggle={() => fold.toggle(c.id)} label={c.name} />}
         <div
           className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md border"
           style={{ backgroundColor: c.bgColour }}
@@ -149,7 +154,14 @@ export default function CategoriesManager({ tree }: { tree: AdminCategoryHead[] 
 
   return (
     <div className="grid max-w-4xl gap-4">
-      <div className="flex justify-end">{addHead}</div>
+      <div className="flex justify-end gap-2">
+        {tree.length > 0 && (
+          <Button variant="outline" onClick={() => fold.setAll(headIds, !fold.anyOpen(headIds))}>
+            {fold.anyOpen(headIds) ? "Collapse all" : "Expand all"}
+          </Button>
+        )}
+        {addHead}
+      </div>
       {tree.length === 0 ? (
         <EmptyState title="No categories yet" description="Start with a head category such as Home Décor." action={addHead} />
       ) : (
@@ -160,7 +172,7 @@ export default function CategoriesManager({ tree }: { tree: AdminCategoryHead[] 
           renderItem={(head, handle) => (
             <div className="rounded-lg border bg-card">
               {row(head, handle, head.children.length)}
-              <div className="border-t bg-muted/30 py-2 pr-2 pl-10">
+              <div hidden={!fold.isOpen(head.id)} className="border-t bg-muted/30 py-2 pr-2 pl-10">
                 {head.children.length === 0 ? (
                   <p className="px-2 py-1 text-sm text-muted-foreground">
                     No sub-categories.{" "}

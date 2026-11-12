@@ -153,6 +153,12 @@ export async function getProductFormOptions(productId?: string) {
 }
 export type ProductFormOptions = Awaited<ReturnType<typeof getProductFormOptions>>;
 
+/** Every product, for pickers outside the product editor. */
+export async function listProductOptions(): Promise<RelatedOption[]> {
+  await requireAdmin();
+  return listRelatedOptions();
+}
+
 async function listRelatedOptions(): Promise<RelatedOption[]> {
   const rows = await db.query.products.findMany({
     columns: { id: true, name: true, slug: true, status: true },
