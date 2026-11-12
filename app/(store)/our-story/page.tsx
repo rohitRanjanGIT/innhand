@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { WHATSAPP_URL } from "@/lib/site";
+import { getSettings, whatsappUrl } from "@/lib/data/settings";
 import { ButtonLink, DISPLAY, Eyebrow, PhotoTag } from "@/components/ui";
 
 export const metadata: Metadata = {
@@ -14,7 +14,8 @@ const promises = [
 
 const bandHeight = "clamp(320px, 38vw, 560px)";
 
-export default function OurStoryPage() {
+export default async function OurStoryPage() {
+  const { whatsappNumber } = await getSettings();
   return (
     <main>
       {/* Opening */}
@@ -226,7 +227,7 @@ export default function OurStoryPage() {
             Have something in mind? <em style={{ fontStyle: "italic" }}>Tell us.</em>
           </h2>
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 12, paddingTop: 8 }}>
-            <ButtonLink href={WHATSAPP_URL} style={{ gap: 10 }}>
+            <ButtonLink href={whatsappUrl(whatsappNumber)} style={{ gap: 10 }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" aria-hidden="true">
                 <path d="M3.5 20.5 5 16a8.5 8.5 0 1 1 3.2 3.1z" />
               </svg>

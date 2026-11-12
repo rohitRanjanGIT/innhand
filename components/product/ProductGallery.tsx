@@ -3,25 +3,35 @@
 import Image from "next/image";
 import { useState } from "react";
 import { PhotoTag } from "../ui";
+import { imagesFor, resolveChoice } from "./choice";
+import { useProductChoice } from "./ProductChoice";
 import styles from "./Product.module.css";
 
 // Tints for the extra shots until there are real photos of each piece.
 const placeholders = ["#EBCFC8", "#DCDFD1", "#D3DAE0"];
 
-export default function ProductGallery({ images, name }: { images: string[]; name: string }) {
+/** Follows the chosen finish and colourway (photos linked to the colourway come first). */
+export default function ProductGallery() {
+  const { product, choice } = useProductChoice();
+  const { finish } = resolveChoice(product, choice);
+  const images = imagesFor(product, finish, choice.colourwayId);
+  // A new set of photos starts from its first one.
+  return <Shots key={images.map((i) => i.key).join("|")} images={images} name={product.name} />;
+}
+
+function Shots({ images, name }: { images: { key: string; alt: string }[]; name: string }) {
   const [shown, setShown] = useState(0);
   // A lone photo is padded with tinted placeholders; a real set of photos is shown as it is.
-  const shots = images.length > 1 ? images : [...images, ...placeholders];
+  const shots = images.length > 1 ? images.map((i) => i.key) : [...images.map((i) => i.key), ...placeholders];
 
   const render = (i: number, sizes: string, main: boolean) =>
     i < images.length ? (
       <Image
-        src={images[i]}
-        alt={main ? (i === 0 ? name : `${name}, photo ${i + 1}`) : ""}
+        src={images[i].key}
+        alt={main ? images[i].alt || (i === 0 ? name : `${name}, photo ${i + 1}`) : ""}
         fill
         sizes={sizes}
         preload={main && i === 0}
-        unoptimized={images[i].endsWith(".svg")}
         style={{ objectFit: "cover" }}
       />
     ) : (

@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { DISPLAY } from "./ui";
-import { shopHref } from "@/lib/products";
-import { menuSections } from "@/lib/site";
+import type { MenuSection } from "@/lib/data/types";
 
 const groupTitle = { fontFamily: DISPLAY, fontSize: 24 } as const;
 const subLinks = {
@@ -15,7 +14,7 @@ const subLinks = {
   borderLeft: "1px solid #DCD2C6",
 } as const;
 
-export default function SideMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
+export default function SideMenu({ nav, open, onClose }: { nav: MenuSection[]; open: boolean; onClose: () => void }) {
   const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -86,7 +85,7 @@ export default function SideMenu({ open, onClose }: { open: boolean; onClose: ()
             </Link>
           </div>
 
-          {menuSections.map((section, i) => (
+          {nav.map((section, i) => (
             <div key={section.heading} style={{ display: "contents" }}>
               {i > 0 && <div style={{ height: 1, background: "#E2D9CE" }} />}
               <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -95,13 +94,13 @@ export default function SideMenu({ open, onClose }: { open: boolean; onClose: ()
                 </span>
                 {section.groups.map((group) => (
                   <div key={group.title} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <Link className="ih-link" href={shopHref(group.title)} onClick={onClose} style={groupTitle}>
+                    <Link className="ih-link" href={group.href} onClick={onClose} style={{ ...groupTitle, color: group.highlight ? "#B52D6F" : undefined }}>
                       {group.title}
                     </Link>
                     <div style={subLinks}>
-                      {group.links.map((label) => (
-                        <Link key={label} className="ih-link" href={shopHref(label)} onClick={onClose} style={{ fontSize: 15 }}>
-                          {label}
+                      {group.links.map((link) => (
+                        <Link key={`${link.label}-${link.href}`} className="ih-link" href={link.href} onClick={onClose} style={{ fontSize: 15 }}>
+                          {link.label}
                         </Link>
                       ))}
                     </div>

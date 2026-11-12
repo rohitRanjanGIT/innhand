@@ -1,0 +1,87 @@
+/* Sign-in, sign-up, verify and reset: one centred card. Fields reuse Store.module.css. */
+.card {
+  max-width: 480px;
+  margin: clamp(16px, 4vw, 48px) auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(40px, 4.4vw, 56px);
+  line-height: 1.04;
+}
+
+.title em {
+  font-style: italic;
+}
+
+.lead {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.65;
+  color: #3E3550;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.submit {
+  width: 100%;
+}
+
+.submit:disabled {
+  opacity: .6;
+  cursor: progress;
+}
+
+.alt {
+  margin: 0;
+  font-size: 14px;
+  color: #5F566B;
+}
+
+.alt a,
+.link {
+  color: #B52D6F;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.message {
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 4px;
+  background: #EFE6DC;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #2A2238;
+}
+
+.message:empty {
+  display: none;
+}
+
+.message[data-tone="error"] {
+  background: #F6E1E6;
+  color: #8E1F52;
+}
+
+.code {
+  letter-spacing: .5em;
+  font-size: 22px;
+  text-align: center;
+}

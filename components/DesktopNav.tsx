@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, type FocusEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState, type FocusEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { DISPLAY } from "./ui";
-import { shopHref } from "@/lib/products";
-import { categorySection, navLinks, occasionSection, type MenuGroup } from "@/lib/site";
+import { navLinks } from "@/lib/site";
+import type { MenuGroup, MenuSection } from "@/lib/data/types";
 
 type MenuId = "shop" | "occasions";
 
@@ -45,7 +45,7 @@ function GroupLinks({ group, size, onNavigate }: { group: MenuGroup; size: numbe
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       <Link
         className="ih-link"
-        href={shopHref(group.title)}
+        href={group.href}
         onClick={onNavigate}
         style={{
           fontFamily: DISPLAY,
@@ -61,10 +61,10 @@ function GroupLinks({ group, size, onNavigate }: { group: MenuGroup; size: numbe
         {group.highlight && <FestiveTag />}
       </Link>
       <ul style={{ listStyle: "none", margin: 0, padding: "0 0 0 14px", borderLeft: "1px solid #DCD2C6", display: "flex", flexDirection: "column", gap: 6 }}>
-        {group.links.map((label) => (
-          <li key={label}>
-            <Link className="ih-link" href={shopHref(label)} onClick={onNavigate} style={{ fontSize: 15 }}>
-              {label}
+        {group.links.map((link) => (
+          <li key={`${link.label}-${link.href}`}>
+            <Link className="ih-link" href={link.href} onClick={onNavigate} style={{ fontSize: 15 }}>
+              {link.label}
             </Link>
           </li>
         ))}
@@ -81,8 +81,25 @@ const columnHeading = {
   fontWeight: 500,
 } as const;
 
-export default function DesktopNav() {
-  const pathname = usePathname();
+/**
+ * The pathname is only known per URL, so reading it is kept behind Suspense; the fallback is the
+ * same nav without the current-page mark.
+ */
+export default function DesktopNav({ nav }: { nav: MenuSection[] }) {
+  return (
+    <Suspense fallback={<Nav nav={nav} pathname={null} />}>
+      <NavWithPath nav={nav} />
+    </Suspense>
+  );
+}
+
+function NavWithPath({ nav }: { nav: MenuSection[] }) {
+  return <Nav nav={nav} pathname={usePathname()} />;
+}
+
+function Nav({ nav, pathname }: { nav: MenuSection[]; pathname: string | null }) {
+  // The Shop panel shows every section; the Occasions dropdown shows the first hand-built one.
+  const occasionSection = nav.find((s) => s.mode === "manual") ?? nav[1];
   const [open, setOpen] = useState<MenuId | null>(null);
   const navRef = useRef<HTMLElement>(null);
   const triggerRefs = useRef<Partial<Record<MenuId, HTMLButtonElement | null>>>({});
@@ -180,22 +197,18 @@ export default function DesktopNav() {
                 padding: "40px clamp(16px, 3vw, 40px) 48px",
                 boxSizing: "border-box",
                 display: "grid",
-                gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.1fr)",
+                gridTemplateColumns: `repeat(${nav.length}, minmax(0, 1fr)) minmax(0, 1.1fr)`,
                 gap: 48,
               }}
             >
-              <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
-                <span style={columnHeading}>{categorySection.heading}</span>
-                {categorySection.groups.map((g) => (
-                  <GroupLinks key={g.title} group={g} size={24} onNavigate={close} />
-                ))}
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
-                <span style={columnHeading}>{occasionSection.heading}</span>
-                {occasionSection.groups.map((g) => (
-                  <GroupLinks key={g.title} group={g} size={24} onNavigate={close} />
-                ))}
-              </div>
+              {nav.map((section) => (
+                <div key={section.heading} style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+                  <span style={columnHeading}>{section.heading}</span>
+                  {section.groups.map((g) => (
+                    <GroupLinks key={g.title} group={g} size={24} onNavigate={close} />
+                  ))}
+                </div>
+              ))}
               <div
                 style={{
                   background: "#EBCFC8",
@@ -245,16 +258,18 @@ export default function DesktopNav() {
         </li>
 
         {/* Occasions: compact dropdown under its trigger */}
-        <li className="ih-nav-item" {...hoverProps("occasions")}>
-          {trigger("occasions", "Occasions")}
-          <div id="ih-nav-occasions" className="ih-nav-panel ih-nav-dropdown" data-open={open === "occasions" || undefined}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
-              {occasionSection.groups.map((g) => (
-                <GroupLinks key={g.title} group={g} size={22} onNavigate={close} />
-              ))}
+        {occasionSection && (
+          <li className="ih-nav-item" {...hoverProps("occasions")}>
+            {trigger("occasions", "Occasions")}
+            <div id="ih-nav-occasions" className="ih-nav-panel ih-nav-dropdown" data-open={open === "occasions" || undefined}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+                {occasionSection.groups.map((g) => (
+                  <GroupLinks key={g.title} group={g} size={22} onNavigate={close} />
+                ))}
+              </div>
             </div>
-          </div>
-        </li>
+          </li>
+        )}
 
         {navLinks.map((link) => {
           const current = link.href === pathname;

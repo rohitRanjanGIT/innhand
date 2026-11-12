@@ -1,11 +1,11 @@
-import { featuredProducts } from "@/lib/products";
+import { getFeaturedProducts } from "@/lib/data/catalogue";
 import ProductCard from "../ProductCard";
 import { ButtonLink, DISPLAY, Eyebrow } from "../ui";
 
-// Four to a row on desktop.
-const featured = featuredProducts.slice(0, 4);
-
-export default function FeaturedProducts() {
+export default async function FeaturedProducts() {
+  // Four to a row on desktop.
+  const featured = (await getFeaturedProducts()).slice(0, 4);
+  if (featured.length === 0) return null;
   return (
     <section style={{ padding: "clamp(40px, 5vw, 72px) clamp(16px, 3vw, 40px) clamp(80px, 9vw, 140px)" }}>
       <div style={{ maxWidth: 1320, margin: "0 auto", display: "flex", flexDirection: "column", gap: 40 }}>

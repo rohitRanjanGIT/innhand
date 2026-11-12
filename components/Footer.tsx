@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { shopHref } from "@/lib/products";
-import { CONTACT_EMAIL, WHATSAPP_URL, footerShop } from "@/lib/site";
+import { getNav } from "@/lib/data/nav";
+import { getSettings, whatsappUrl } from "@/lib/data/settings";
 
 const colTitle = {
   fontSize: 11,
@@ -14,7 +14,11 @@ const colTitle = {
 const col = (basis: number) =>
   ({ flex: `0 1 ${basis}px`, display: "flex", flexDirection: "column", gap: 12, fontSize: 15 }) as const;
 
-export default function Footer() {
+export default async function Footer() {
+  const [nav, settings] = await Promise.all([getNav(), getSettings()]);
+  // The Shop column lists every menu group (head categories, then occasions).
+  const shopLinks = nav.flatMap((s) => s.groups.map((g) => ({ label: g.title, href: g.href })));
+
   return (
     <footer
       id="footer"
@@ -39,9 +43,9 @@ export default function Footer() {
 
           <nav aria-label="Shop" style={col(180)}>
             <span style={colTitle}>Shop</span>
-            {footerShop.map((label) => (
-              <Link key={label} href={shopHref(label)}>
-                {label}
+            {shopLinks.map((l) => (
+              <Link key={`${l.label}-${l.href}`} href={l.href}>
+                {l.label}
               </Link>
             ))}
           </nav>
@@ -58,7 +62,7 @@ export default function Footer() {
             <span style={colTitle}>Innhand</span>
             <Link href="/our-story">Our Story</Link>
             <Link href="#">Instagram</Link>
-            <a href={WHATSAPP_URL}>WhatsApp</a>
+            <a href={whatsappUrl(settings.whatsappNumber)}>WhatsApp</a>
           </nav>
         </div>
 
@@ -75,7 +79,7 @@ export default function Footer() {
           }}
         >
           <span>© 2026 Innhand Creations. Handmade with care.</span>
-          <span>{CONTACT_EMAIL}</span>
+          {settings.contactEmail && <a href={`mailto:${settings.contactEmail}`}>{settings.contactEmail}</a>}
         </div>
       </div>
     </footer>

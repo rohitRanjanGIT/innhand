@@ -3,7 +3,6 @@
 import Image from "next/image";
 import type { FocusEvent, KeyboardEvent, PointerEvent } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { featuredProducts as products } from "@/lib/products";
 import { ButtonLink, Eyebrow } from "../ui";
 import styles from "./HeroFan.module.css";
 
@@ -14,11 +13,9 @@ const GLIDE_MS = 110;
 /** A wheel gesture is over once no wheel event has arrived for this long. */
 const WHEEL_IDLE_MS = 120;
 const DRAG_START_PX = 6;
-const n = products.length;
 // Cards sit on an endless strip, so enough copies of the products are rendered to run past
 // both edges of a wide window. Cards fade in and out at the outermost slots.
 const REACH = 7;
-const mod = (v: number) => ((v % n) + n) % n;
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 // Math.tanh, cosh and atan can differ in the last digits between Node and the browser, which
 // would make the server-rendered styles disagree with the client's. Rounding hides that.
@@ -72,7 +69,12 @@ function paint(el: HTMLElement, o: number) {
   el.style.setProperty("--fade", String(l.fade));
 }
 
-export default function HeroFan() {
+export type HeroProduct = { slug: string; name: string; category: string; image: string | null; href: string };
+
+/** The home page's top picks (featured products, best first). Needs at least one product. */
+export default function HeroFan({ products }: { products: HeroProduct[] }) {
+  const n = products.length;
+  const mod = (v: number) => ((v % n) + n) % n;
   // The strip's position moves continuously (and never wraps), so it lives in refs and is
   // painted straight onto the cards each frame. `center` is the card it currently rests on.
   const target = useRef(0);
@@ -273,18 +275,19 @@ export default function HeroFan() {
                   animationDelay: `${150 + Math.min(Math.abs(v), 3) * 90}ms`,
                 }}
               >
-                <Image
-                  src={p.image}
-                  alt=""
-                  fill
-                  sizes="(max-width: 900px) 280px, 340px"
-                  // All visible cards are above the fold: preload the first, load the rest eagerly.
-                  preload={v === 0}
-                  loading={v === 0 ? undefined : "eager"}
-                  unoptimized={p.image.endsWith(".svg")}
-                  draggable={false}
-                  style={{ objectFit: "cover" }}
-                />
+                {p.image && (
+                  <Image
+                    src={p.image}
+                    alt=""
+                    fill
+                    sizes="(max-width: 900px) 280px, 340px"
+                    // All visible cards are above the fold: preload the first, load the rest eagerly.
+                    preload={v === 0}
+                    loading={v === 0 ? undefined : "eager"}
+                    draggable={false}
+                    style={{ objectFit: "cover" }}
+                  />
+                )}
               </button>
             );
           })}

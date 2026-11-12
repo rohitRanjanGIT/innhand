@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { categories } from "@/lib/products";
+import { getSubCategories } from "@/lib/data/catalogue";
 import { ButtonLink, DISPLAY, Eyebrow, PhotoTag } from "../ui";
 
-export default function Categories() {
+export default async function Categories() {
+  const categories = await getSubCategories();
   return (
     <section style={{ padding: "clamp(40px, 5vw, 72px) clamp(16px, 3vw, 40px)" }}>
       <div style={{ maxWidth: 1320, margin: "0 auto", display: "flex", flexDirection: "column", gap: 40 }}>
@@ -38,14 +39,13 @@ export default function Categories() {
         <div className="ih-cat-grid">
           {categories.map((c) => (
             <Link key={c.name} href={c.href} className="ih-tile">
-              <div className="ih-tile-media" style={{ aspectRatio: "4 / 5", background: c.bg }}>
+              <div className="ih-tile-media" style={{ aspectRatio: "4 / 5", background: c.bgColour }}>
                 {c.image ? (
                   <Image
                     src={c.image}
                     alt=""
                     fill
                     sizes="(max-width: 600px) 90vw, 260px"
-                    unoptimized={c.image.endsWith(".svg")}
                     style={{ objectFit: "cover" }}
                   />
                 ) : (

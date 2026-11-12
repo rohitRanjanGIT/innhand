@@ -958,3 +958,63 @@
     transition: none;
   }
 }
+
+/* ---------- Combo bundles in the cart ---------- */
+.bundle {
+  padding: 24px 0;
+  border-bottom: 1px solid #E2D9CE;
+}
+
+.bundle > .line {
+  padding: 0;
+  border-bottom: 0;
+}
+
+.bundlePieces {
+  margin: 16px 0 0 120px;
+}
+
+.saving {
+  font-size: 13px;
+  font-weight: 500;
+  color: #2A2238;
+}
+
+.notice {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #B52D6F;
+}
+
+.was {
+  display: block;
+  font-size: 13px;
+  color: #5F566B;
+  text-decoration: line-through;
+}
+
+.swatchPair {
+  display: inline-flex;
+}
+
+.swatchPair .dot + .dot {
+  margin-left: -4px;
+}
+
+.error {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #B52D6F;
+}
+
+.error:empty {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .bundlePieces {
+    margin-left: 0;
+  }
+}

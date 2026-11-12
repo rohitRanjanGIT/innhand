@@ -1,0 +1,347 @@
+{
+  "products": [
+    {
+      "slug": "ribbed-round-pot",
+      "name": "Ribbed Round Pot",
+      "category": "Home Décor",
+      "categorySlug": "planters",
+      "blurb": "A ribbed round pot for succulents, pens and the odds and ends of a desk.",
+      "image": "/assets/products/ribbed-round-pot.jpg",
+      "price": 600,
+      "size": "8.7 × 6.6 cm"
+    },
+    {
+      "slug": "succulent-planter-candle-holder",
+      "name": "Succulent Planter & Candle Holder",
+      "category": "Home Décor",
+      "categorySlug": "planters",
+      "blurb": "Two little bowls in one: plant a succulent in one and set a tealight in the other.",
+      "image": "/assets/products/succulent-planter-candle-holder.jpg",
+      "price": 400,
+      "size": "18.1 × 8.8 × 3.7 cm"
+    },
+    {
+      "slug": "prism-pot",
+      "name": "Prism Pot",
+      "category": "Home Décor",
+      "categorySlug": "planters",
+      "blurb": "A faceted pot swirled in two colours, made for succulents and small plants.",
+      "image": "/assets/products/prism-pot.jpg",
+      "gallery": [
+        "/assets/products/prism-pot.jpg",
+        "/assets/products/prism-pot-2.jpg"
+      ],
+      "price": 450,
+      "size": "[dimensions]"
+    },
+    {
+      "slug": "rectangular-tube-planter",
+      "name": "Rectangular Tube Planter",
+      "category": "Home Décor",
+      "categorySlug": "planters",
+      "blurb": "A hand-poured frame that holds a glass test tube, so cuttings can root in water. Glass tube included.",
+      "image": "/assets/products/rectangular-tube-planter.jpg",
+      "gallery": [
+        "/assets/products/rectangular-tube-planter.jpg",
+        "/assets/products/rectangular-tube-planter-2.jpg"
+      ],
+      "price": 650,
+      "size": "12 × 4 × 16 cm"
+    },
+    {
+      "slug": "square-tube-planter",
+      "name": "Square Tube Planter",
+      "category": "Home Décor",
+      "categorySlug": "planters",
+      "blurb": "A square frame with a round cut-out that holds a glass test tube for cuttings. Glass tube included.",
+      "image": "/assets/products/square-tube-planter.jpg",
+      "gallery": [
+        "/assets/products/square-tube-planter.jpg",
+        "/assets/products/square-tube-planter-2.jpg"
+      ],
+      "price": 450,
+      "size": "13.5 × 4 × 13.5 cm"
+    },
+    {
+      "slug": "donut-vase",
+      "name": "Donut Vase",
+      "category": "Home Décor",
+      "categorySlug": "vases",
+      "blurb": "A donut-shaped vase for dried or faux stems.",
+      "image": "/assets/products/donut-vase.jpg",
+      "price": 650,
+      "size": "14.9 cm · 3.4 cm deep"
+    },
+    {
+      "slug": "pinstripe-round-vase",
+      "name": "Pinstripe Round Vase",
+      "category": "Home Décor",
+      "categorySlug": "vases",
+      "blurb": "A round vase with fine pinstripe ribbing, for dried stems and small blooms. Use a glass insert for fresh flowers.",
+      "image": "/assets/products/pinstripe-round-vase.jpg",
+      "gallery": [
+        "/assets/products/pinstripe-round-vase.jpg",
+        "/assets/products/pinstripe-round-vase-2.jpg"
+      ],
+      "price": null,
+      "size": "[dimensions]"
+    },
+    {
+      "slug": "heart-tealight-holder",
+      "name": "Heart Tealight Holder",
+      "category": "Home Décor",
+      "categorySlug": "candles-tealights",
+      "blurb": "A heart-shaped holder edged with a ring of beads, for a soft glow on any shelf.",
+      "image": "/assets/products/heart-tealight-holder.jpg",
+      "gallery": [
+        "/assets/products/heart-tealight-holder.jpg",
+        "/assets/products/heart-tealight-holder-2.jpg"
+      ],
+      "price": 250,
+      "size": "[dimensions]"
+    },
+    {
+      "slug": "oval-tealight-holder",
+      "name": "Oval Tealight Holder",
+      "category": "Home Décor",
+      "categorySlug": "candles-tealights",
+      "blurb": "A smooth oval holder with swirls of colour, for a shelf, a desk or a festive table.",
+      "image": "/assets/products/oval-tealight-holder.jpg",
+      "gallery": [
+        "/assets/products/oval-tealight-holder.jpg",
+        "/assets/products/oval-tealight-holder-2.jpg"
+      ],
+      "price": 300,
+      "size": "[dimensions]"
+    },
+    {
+      "slug": "spherical-tealight-holder",
+      "name": "Spherical Tealight Holder",
+      "category": "Home Décor",
+      "categorySlug": "candles-tealights",
+      "blurb": "A round holder swirled in colour that cups a single tealight.",
+      "image": "/assets/products/spherical-tealight-holder.jpg",
+      "gallery": [
+        "/assets/products/spherical-tealight-holder.jpg",
+        "/assets/products/spherical-tealight-holder-2.jpg",
+        "/assets/products/spherical-tealight-holder-3.jpg"
+      ],
+      "price": 500,
+      "size": "[dimensions]"
+    },
+    {
+      "slug": "lotus-candle",
+      "name": "Lotus Candle",
+      "category": "Home Décor",
+      "categorySlug": "candles-tealights",
+      "blurb": "A lotus-shaped candle that opens like a flower. Made for festivals, lovely every day.",
+      "image": "/assets/products/lotus-candle.jpg",
+      "gallery": [
+        "/assets/products/lotus-candle.jpg",
+        "/assets/products/lotus-candle-2.jpg"
+      ],
+      "price": 300,
+      "size": "[dimensions]"
+    },
+    {
+      "slug": "tulip-candle",
+      "name": "Tulip Candle",
+      "category": "Home Décor",
+      "categorySlug": "candles-tealights",
+      "blurb": "A tulip-shaped candle in soft, blended colours.",
+      "image": "/assets/products/tulip-candle.jpg",
+      "gallery": [
+        "/assets/products/tulip-candle.jpg",
+        "/assets/products/tulip-candle-2.jpg"
+      ],
+      "price": 275,
+      "size": "6.2 × 2.44 cm"
+    },
+    {
+      "slug": "goblet-candle",
+      "name": "Goblet Candle",
+      "category": "Home Décor",
+      "categorySlug": "candles-tealights",
+      "blurb": "A goblet-shaped candle marbled in green, lovely lit or unlit.",
+      "image": "/assets/products/goblet-candle.jpg",
+      "gallery": [
+        "/assets/products/goblet-candle.jpg",
+        "/assets/products/goblet-candle-2.jpg"
+      ],
+      "price": 450,
+      "size": "8.5 × 5 × 7.5 cm"
+    },
+    {
+      "slug": "conch-shell-candle",
+      "name": "Conch Shell Candle",
+      "category": "Home Décor",
+      "categorySlug": "candles-tealights",
+      "blurb": "A conch shell candle in soft pastels, for a shelf that needs a little sea.",
+      "image": "/assets/products/conch-shell-candle.jpg",
+      "price": 300,
+      "size": "12.9 × 6.4 × 4 cm"
+    },
+    {
+      "slug": "hexagonal-coaster-set",
+      "name": "Hexagonal Coaster Set",
+      "category": "Home Décor",
+      "categorySlug": "coasters",
+      "blurb": "Marbled hexagonal coasters for the table and the bar cart. Sets of 2 are ₹400, sets of 4 are ₹800 and sets of 6 are ₹1,200.",
+      "image": "/assets/products/hexagonal-coaster-set.jpg",
+      "price": 400,
+      "priceFrom": true,
+      "size": "Sold in sets of 2, 4 or 6"
+    },
+    {
+      "slug": "round-diamond-coaster-set",
+      "name": "Round Diamond Coaster Set",
+      "category": "Home Décor",
+      "categorySlug": "coasters",
+      "blurb": "Round coasters flecked with gold. Sets of 2 are ₹450, sets of 4 are ₹900 and sets of 6 are ₹1,350.",
+      "image": "/assets/products/round-diamond-coaster-set.jpg",
+      "price": 450,
+      "priceFrom": true,
+      "size": "Sold in sets of 2, 4 or 6"
+    },
+    {
+      "slug": "bubble-tray",
+      "name": "Bubble Tray",
+      "category": "Gifting",
+      "categorySlug": "trinket-trays",
+      "blurb": "A tray edged with bubbles, for jewellery, keys or a candle on the vanity.",
+      "image": "/assets/products/bubble-tray.jpg",
+      "price": 300,
+      "size": "[dimensions]"
+    },
+    {
+      "slug": "roped-heart-tray",
+      "name": "Roped Heart Tray",
+      "category": "Gifting",
+      "categorySlug": "trinket-trays",
+      "blurb": "A heart-shaped tray with a roped edge, for rings, keys and keepsakes.",
+      "image": "/assets/products/roped-heart-tray.jpg",
+      "price": 300,
+      "size": "13 × 12.4 cm"
+    },
+    {
+      "slug": "leaf-heart-tray",
+      "name": "Leaf Heart Tray",
+      "category": "Gifting",
+      "categorySlug": "trinket-trays",
+      "blurb": "A heart-shaped tray with a leaf imprint, for rings, keys and little keepsakes.",
+      "image": "/assets/products/leaf-heart-tray.jpg",
+      "price": 250,
+      "size": "[dimensions]"
+    },
+    {
+      "slug": "capsule-trinket-tray",
+      "name": "Capsule Trinket Tray",
+      "category": "Gifting",
+      "categorySlug": "trinket-trays",
+      "blurb": "A long capsule tray for the vanity, for keys, jewellery or perfume.",
+      "image": "/assets/products/capsule-trinket-tray.jpg",
+      "price": 375,
+      "size": "20 × 10.5 cm"
+    },
+    {
+      "slug": "jewellery-box",
+      "name": "Jewellery Box",
+      "category": "Gifting",
+      "categorySlug": "jewellery-boxes",
+      "blurb": "A lidded box with ribbed sides that keeps jewellery safe, and looks lovely doing it.",
+      "image": "/assets/products/jewellery-box.jpg",
+      "price": 400,
+      "size": "[dimensions]"
+    }
+  ],
+  "categories": [
+    {
+      "slug": "planters",
+      "name": "Planters",
+      "group": "Home Décor",
+      "blurb": "Small planters for succulents and cuttings, poured in your colours.",
+      "image": "/assets/products/prism-pot-2.jpg",
+      "bg": "#DCDFD1"
+    },
+    {
+      "slug": "vases",
+      "name": "Vases",
+      "group": "Home Décor",
+      "blurb": "Sculptural vases for dried stems and fresh blooms.",
+      "image": "/assets/products/pinstripe-round-vase-2.jpg",
+      "bg": "#DCDFD1"
+    },
+    {
+      "slug": "candles-tealights",
+      "name": "Candles & tealights",
+      "group": "Home Décor",
+      "blurb": "Candles and holders that bring a soft glow to a shelf, a desk or a festive table.",
+      "image": "/assets/products/spherical-tealight-holder-2.jpg",
+      "bg": "#E1DAD3"
+    },
+    {
+      "slug": "coasters",
+      "name": "Coasters",
+      "group": "Home Décor",
+      "blurb": "Speckled and marbled coasters for the table and the bar cart.",
+      "image": "/assets/products/hexagonal-coaster-set.jpg",
+      "bg": "#E4C9B6"
+    },
+    {
+      "slug": "trinket-trays",
+      "name": "Trinket trays",
+      "group": "Gifting",
+      "blurb": "Little trays for rings, keys and keepsakes. A gift that stays.",
+      "image": "/assets/products/roped-heart-tray.jpg",
+      "bg": "#EBCFC8"
+    },
+    {
+      "slug": "jewellery-boxes",
+      "name": "Jewellery boxes",
+      "group": "Gifting",
+      "blurb": "Lidded boxes that keep jewellery safe, and look lovely doing it.",
+      "image": "/assets/products/jewellery-box.jpg",
+      "bg": "#D3DAE0"
+    }
+  ],
+  "colours": [
+    {
+      "name": "Blush",
+      "hex": "#EBCFC8"
+    },
+    {
+      "name": "Sage",
+      "hex": "#DCDFD1"
+    },
+    {
+      "name": "Mist",
+      "hex": "#D3DAE0"
+    },
+    {
+      "name": "Sand",
+      "hex": "#E4C9B6"
+    },
+    {
+      "name": "Stone",
+      "hex": "#E1DAD3"
+    },
+    {
+      "name": "Ivory",
+      "hex": "#F7F2EC"
+    },
+    {
+      "name": "Plum",
+      "hex": "#32255D"
+    }
+  ],
+  "featured": [
+    "prism-pot",
+    "spherical-tealight-holder",
+    "roped-heart-tray",
+    "lotus-candle",
+    "pinstripe-round-vase",
+    "rectangular-tube-planter",
+    "donut-vase",
+    "oval-tealight-holder"
+  ]
+}

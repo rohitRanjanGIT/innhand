@@ -1,21 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
-import { priceLabel, type Product } from "@/lib/products";
+import { priceLabel } from "@/lib/pricing";
+import type { ProductTile } from "@/lib/data/types";
 import { DISPLAY } from "./ui";
 
 /** Catalogue tile: image, category, name, price and a "View product" link. */
-export default function ProductCard({ product: p }: { product: Product }) {
+export default function ProductCard({ product: p }: { product: ProductTile }) {
   return (
     <Link href={p.href} className="ih-tile">
       <div className="ih-tile-media" style={{ aspectRatio: "3 / 4", background: "#FFFFFF" }}>
-        <Image
-          src={p.image}
-          alt=""
-          fill
-          sizes="(max-width: 600px) 90vw, 320px"
-          unoptimized={p.image.endsWith(".svg")}
-          style={{ objectFit: "cover" }}
-        />
+        {p.image && (
+          <Image src={p.image} alt="" fill sizes="(max-width: 600px) 90vw, 320px" style={{ objectFit: "cover" }} />
+        )}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 6, paddingTop: 18 }}>
         <span style={{ fontSize: 13, color: "#5F566B", letterSpacing: "0.04em" }}>{p.category}</span>

@@ -1,7 +1,8 @@
-import { WHATSAPP_URL } from "@/lib/site";
+import { getSettings, whatsappUrl } from "@/lib/data/settings";
 import { ButtonLink, DISPLAY, Eyebrow } from "../ui";
 
-export default function CustomOrders() {
+export default async function CustomOrders() {
+  const { whatsappNumber } = await getSettings();
   return (
     <section id="custom" style={{ padding: "0 clamp(16px, 3vw, 40px) clamp(80px, 9vw, 140px)" }}>
       <div
@@ -52,7 +53,7 @@ export default function CustomOrders() {
 
         <div style={{ display: "flex", flexDirection: "column", gap: 12, position: "relative" }}>
           <ButtonLink
-            href={WHATSAPP_URL}
+            href={whatsappUrl(whatsappNumber)}
             variant="dark"
             size="lg"
             style={{ justifyContent: "center", gap: 12, letterSpacing: "0.16em" }}
