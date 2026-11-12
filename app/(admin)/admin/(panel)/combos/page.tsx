@@ -66,7 +66,7 @@ export default async function CombosPage() {
                       </Link>
                       <div className="text-xs text-muted-foreground">{c.pieceNames.join(" + ")}</div>
                       {c.status === "active" && c.hidden.length > 0 && (
-                        <div className="mt-1 text-xs text-amber-700">Hidden on the shop: {c.hidden.join("; ")}</div>
+                        <div className="mt-1 text-xs text-amber-700 dark:text-amber-400">Hidden on the shop: {c.hidden.join("; ")}</div>
                       )}
                     </TableCell>
                     <TableCell>

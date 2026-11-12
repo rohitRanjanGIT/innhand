@@ -503,7 +503,7 @@ export default function ComboEditor({
               {mode === "percent" && discount ? ` (${discount.value}%)` : ""}.
             </p>
             {live.hidden.length > 0 && (
-              <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900">
+              <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-200">
                 <p className="mb-1 font-medium">The shop hides this combo until this is fixed:</p>
                 <ul className="list-disc pl-4">
                   {live.hidden.map((h) => (
