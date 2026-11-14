@@ -1,7 +1,16 @@
 import "server-only";
 import { eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { categories, comboImages, media, productFinishImages, tags } from "@/db/schema";
+import {
+  categories,
+  comboImages,
+  homeSections,
+  media,
+  productFinishImages,
+  reviews,
+  socialPosts,
+  tags,
+} from "@/db/schema";
 import { deleteImageFiles, r2Configured } from "@/lib/r2";
 
 // Not a Server Action file on purpose: callers (admin actions) have already run requireAdmin().
@@ -20,7 +29,10 @@ export async function deleteOrphanMedia(ids: string[]) {
         and not exists (select 1 from ${productFinishImages} where ${productFinishImages.mediaId} = ${media.id})
         and not exists (select 1 from ${comboImages} where ${comboImages.mediaId} = ${media.id})
         and not exists (select 1 from ${categories} where ${categories.imageId} = ${media.id})
-        and not exists (select 1 from ${tags} where ${tags.imageId} = ${media.id})`,
+        and not exists (select 1 from ${tags} where ${tags.imageId} = ${media.id})
+        and not exists (select 1 from ${homeSections} where ${homeSections.imageId} = ${media.id})
+        and not exists (select 1 from ${reviews} where ${reviews.imageId} = ${media.id})
+        and not exists (select 1 from ${socialPosts} where ${socialPosts.imageId} = ${media.id})`,
     );
   for (const r of rows) {
     if (!r.key.startsWith("local:") && r2Configured()) await deleteImageFiles(r.key);

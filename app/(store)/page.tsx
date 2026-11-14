@@ -8,6 +8,7 @@ import WhyJesmonite from "@/components/home/WhyJesmonite";
 import Reviews from "@/components/home/Reviews";
 import CustomOrders from "@/components/home/CustomOrders";
 import { getFeaturedProducts, getProductTiles } from "@/lib/data/catalogue";
+import { getHomeContent } from "@/lib/data/home";
 
 export const metadata: Metadata = {
   title: { absolute: "Innhand Creations — Home" },
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   // The hero shows every featured piece (or the first few pieces when none are featured).
-  const featured = await getFeaturedProducts();
+  const [featured, home] = await Promise.all([getFeaturedProducts(), getHomeContent()]);
   const hero = (featured.length ? featured : (await getProductTiles()).slice(0, 8)).map((p) => ({
     slug: p.slug,
     name: p.name,
@@ -26,12 +27,12 @@ export default async function HomePage() {
   return (
     <main>
       {hero.length > 0 && <HeroFan products={hero} />}
-      <MadeByHand />
+      <MadeByHand section={home.process} />
       <Categories />
       <FeaturedProducts />
-      <StoryTeaser />
+      <StoryTeaser section={home.story} />
       <WhyJesmonite />
-      <Reviews />
+      <Reviews section={home.reviews} />
       <CustomOrders />
     </main>
   );

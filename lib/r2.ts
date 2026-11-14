@@ -2,6 +2,7 @@ import "server-only";
 import { DeleteObjectsCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { IMAGE_SIZES } from "./images";
+import { VIDEO_KEY_PATTERN } from "./video-key";
 
 const env = {
   accountId: process.env.R2_ACCOUNT_ID,
@@ -59,6 +60,23 @@ export async function putWebp(id: string, size: string, body: Buffer) {
       CacheControl: IMMUTABLE,
     }),
   );
+}
+
+export const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm"] as const;
+export const MAX_VIDEO_BYTES = 60 * 1024 * 1024;
+
+/** A short-lived URL the admin's browser PUTs a video to. Videos are served as uploaded (no resizing). */
+export async function presignVideoUpload(key: string, contentType: string, bytes: number) {
+  return getSignedUrl(
+    r2(),
+    new PutObjectCommand({ Bucket: env.bucket, Key: key, ContentType: contentType, ContentLength: bytes }),
+    { expiresIn: 600 },
+  );
+}
+
+export async function deleteVideoFile(key: string) {
+  if (!VIDEO_KEY_PATTERN.test(key)) return;
+  await r2().send(new DeleteObjectsCommand({ Bucket: env.bucket, Delete: { Objects: [{ Key: key }] } }));
 }
 
 /** Deletes the original and every generated size. */

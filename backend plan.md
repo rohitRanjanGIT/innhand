@@ -1,11 +1,20 @@
 # Innhand backend plan
 
-Status: milestones 0–5 built (2026-11-12). Changes from the draft:
+Status (updated 2026-11-14): milestones 0–5 are built. Milestone 6 is partly done. Checked against the code and the migrations, and `npm test` passes (33 tests). The live app, R2, Resend and a deploy were not checked.
 
-- Sign-in is **email + password only** for now, for shoppers and the admin. "Email me a code" sign-in and the admin's second-step code are not built yet. Emailed codes are used only to verify a new email and to reset a password.
-- `npm run build` uses webpack (`next build --webpack`): Turbopack's production build fails on `next/font/google` in Next 16.4.2. `next dev` still uses Turbopack.
-- The seed gives every product all four finishes at today's price (not just one), so the product page keeps today's choices.
 Scope of this phase: admin panel, catalogue, sign-in, cart and wishlist. Checkout, payment and orders come in the next phase.
+
+## 0. Where the build differs from the draft
+
+- **Sign-in is email + password only**, for shoppers and the admin. "Email me a code" sign-in, the admin's second-step code and Google are not built; they stay on the later list. Emailed 6-digit codes are used only to verify a new email and to reset a password. The code sign-in route is switched off in `lib/auth.ts` (`disabledPaths`).
+- **`npm run build` uses webpack** (`next build --webpack`): Turbopack's production build fails on `next/font/google` in Next 16.4.2. `next dev` still uses Turbopack.
+- **Seed:** every product gets all four finishes at today's catalogue price (not just one), so the product page keeps today's choices. Prices per finish are still yours to set in the admin.
+- **Tags are shown as "Occasions"** in the admin (`/admin/occasions`). Migration `0001` added `bg_colour`, `sort` and `active` to the `tags` table for this.
+- **`rate_limit` table** added for Better Auth's database-backed rate limiting.
+- **Admin has light and dark mode** (`next-themes`).
+- **`/checkout` exists** as a signed-in-only placeholder page. Payment and orders are not built.
+- **Scripts:** `db:generate`, `db:migrate`, `db:studio`, `db:seed`, `db:admin` (creates or resets an admin; `--customer` makes a sample shopper), `test`.
+- **Config:** `cacheComponents` and `partialPrefetching` are on; Server Actions body limit is 2 MB; `sharp` is an external server package; images use a custom loader (`lib/image-loader.ts`).
 
 ## 1. The brief
 
@@ -20,7 +29,7 @@ These are the requirements this plan is built on (your notes plus the answers yo
 7. **Products.** Name, description, size details, cart limit, sub-category, tags, hand-picked similar products, and a cost price only the admin sees. The admin chooses which finishes a product has. Each finish of a product has its own images and its own price. A product can be sold in sets (2, 3, 4, 5, 6…), each set size with its own price.
 8. **Combos.** The admin makes combos of 2 to 4 catalogue products with their own photos and price, and the site shows the saving. The shopper can change the finish and colours of each piece; the price moves with the finishes and the saving stays. Shoppers can also build their own combo and get a discount the admin sets for 2, 3 and 4 pieces. The admin can turn the shopper-built option off.
 9. **Cart and wishlist.** Anyone can add to cart. Signing in is required at checkout.
-10. **Sign-in.** Email and password, with an emailed one-time code as the second way in. Google next, phone later.
+10. **Sign-in.** Email and password for now. Emailed codes verify a new email and reset a password. "Email me a code" sign-in and Google come later, then phone.
 11. **Admin.** Owner only, one role.
 12. **Stack.** Next.js (already here), Postgres on Neon for all data, Cloudflare R2 for all images (nothing else stores files), shadcn/ui for the admin screens.
 
@@ -31,8 +40,8 @@ These are the requirements this plan is built on (your notes plus the answers yo
 | Database | Neon Postgres | Given. |
 | Data access | Drizzle ORM + drizzle-kit migrations | Typed, light, works well with Neon's serverless driver. |
 | Driver | `@neondatabase/serverless` pooled (WebSocket) client | Saving a product or merging a cart needs real transactions, which the HTTP driver cannot do. Migrations use the direct (unpooled) URL. |
-| Sign-in | Better Auth with its Drizzle adapter | Email and password plus email one-time code now; Google and phone are switched on later with no schema rewrite. |
-| Email | Resend | Sends the verification, sign-in and password-reset codes. Needs a verified sending domain. |
+| Sign-in | Better Auth with its Drizzle adapter | Email and password now, with its email-code plugin for verification and password reset. Code sign-in, Google and phone are switched on later with no schema rewrite. |
+| Email | Resend | Sends the verification and password-reset codes. Needs a verified sending domain. |
 | Images | Cloudflare R2 (S3-compatible) via `@aws-sdk/client-s3` and `sharp` | The admin browser uploads the original straight to R2 with a presigned URL. A server step then makes the fixed-size WebP copies. R2 only stores files; it does not resize. |
 | Admin UI | shadcn/ui on Tailwind v4, React Hook Form, Zod, TanStack Table, dnd-kit | shadcn as asked; the rest are what its forms, tables and drag-to-reorder are built on. |
 | Validation | Zod, one schema shared by form and server | The server never trusts the form. |
@@ -57,15 +66,16 @@ If the product photos from the catalogue are much larger than 1600 px, the zoom 
 
 ### Sign-in
 
-Shoppers have two ways in, both leading to the same account. The sign-in page shows them as two equal choices, **Password** and **Email code**, as a switch at the top of the form. The shopper enters their email once and picks either; the page remembers which one they used last on that device.
+Shoppers and the admin sign in with email and password. Pages: `/sign-up`, `/sign-in`, `/verify-email`, `/forgot-password`, and `/admin/sign-in` for the admin.
 
 | Flow | Steps |
 | --- | --- |
 | **Create account** | Name, email, password. We email a 6-digit code; entering it verifies the address and signs the shopper in. |
-| **Sign in with password** | Email and password. |
-| **Sign in with a code** | "Email me a code instead": email, then the 6-digit code. Works for any verified account, and creates one if the email is new. |
+| **Sign in** | Email and password. An unverified account is sent a new code. |
 | **Forgot password** | Email, then a 6-digit code, then a new password. Every other session of that account is signed out. |
-| **Change or set password** | On the account page. "Set" covers accounts first created with a code (or later with Google) that have no password yet. |
+| **Change password** | On the account page. |
+
+**Later (not built):** a Password / Email code switch on the sign-in page, an admin second-step code, Google, phone. When wanted, remove `/sign-in/email-otp` from `disabledPaths` in `lib/auth.ts` and add the provider there.
 
 Rules:
 
@@ -76,10 +86,9 @@ Rules:
 - **One error message.** "Email or password is incorrect" whether the email exists or not, so the form cannot be used to find out who has an account.
 - **Sessions:** http-only, secure cookie; the session itself lives in Neon. Signing out deletes it on the server.
 - **After sign-in:** the guest cart and wishlist merge into the account and the shopper returns to where they were. Return addresses must be on our own site.
-- **Admin:** password first, then an emailed code as a second step, at `/admin`. Only emails in `ADMIN_EMAILS` can hold the admin role.
-- **Google (next):** a "Continue with Google" button through Better Auth's Google provider. Needs an OAuth client in Google Cloud Console with the redirect address `/api/auth/callback/google`. A Google sign-in with the same email links to the existing account.
-
-Until the Resend domain is verified, codes are printed to the terminal in development.
+- **Admin:** email and password at `/admin/sign-in`. Only emails in `ADMIN_EMAILS` can hold the admin role. Create or reset one with `npm run db:admin -- <email> [--reset]`; it prints a random password once.
+- **Guest cart merge:** runs when a session is created, and the sign-in forms also call `claimGuestCart()` as a backup. A merge failure never blocks signing in.
+- **Google (later):** a "Continue with Google" button through Better Auth's Google provider. Needs an OAuth client in Google Cloud Console with the redirect address `/api/auth/callback/google`. A Google sign-in with the same email would link to the existing account.
 
 ### Next.js 16 points that shape the design
 
@@ -198,11 +207,11 @@ All under `/admin`, shadcn sidebar layout.
 
 | Screen | What the owner does |
 | --- | --- |
-| Sign in | Password, then an emailed code. Only emails in `ADMIN_EMAILS` get the admin role. |
+| Sign in | Email and password. Only emails in `ADMIN_EMAILS` get the admin role. |
 | Dashboard | Counts of products, drafts, combos, shoppers, active carts. Orders arrive next phase. |
 | Products | Table with search and filters. The editor has tabs: **Details** (name, slug, category, tags, description, size, cart limit, status), **Finishes and images** (tick finishes, upload and reorder photos per finish), **Pricing** (grid of finish × set size with price and cost price, margin shown), **Similar products**, **SEO**. |
 | Categories | Head categories with their sub-categories, drag to reorder, image and blurb. |
-| Tags | Simple list. |
+| Occasions (tags) | List of occasions such as Diwali and Housewarming, with colour, order, active switch and the products in each. |
 | Finishes | Global limits (SCC, SEC). Finish editor: slot names, effect slots and their options. Colourways per finish with a swatch preview. |
 | Colours | The palette. |
 | Combos | Combo editor (pick 2 to 4 products, default finishes, photos, price) plus the shopper-built switch and the three discount tiers. |
@@ -228,7 +237,7 @@ Deleting is "archive" for anything a cart could point at (products, finishes, co
 - Every action validates its input with Zod.
 - Storefront data functions select named columns only, so `cost_price` cannot leak.
 - R2 upload URLs are presigned per request, admin only, short-lived, limited to one key prefix, image types and a size cap. The R2 access key is scoped to this one bucket and is never sent to the browser.
-- Password attempts, code attempts and code requests are rate limited per email and per IP. Passwords are stored only as salted hashes.
+- Sign-in, sign-up, code and password-change requests are rate limited (limits kept in the `rate_limit` table). Passwords are stored only as salted hashes.
 - Secrets live in `.env.local` (already git-ignored) and in the host's environment settings.
 
 ## 8. Folder layout
@@ -239,18 +248,19 @@ app/
   (admin)/admin/      admin root layout, admin.css, all admin screens
   api/auth/[...all]/  Better Auth
 db/
-  schema/             one file per area (finishes, catalogue, nav, combos, cart, auth)
-  migrations/
-  seed.ts
+  schema/             one file per area (finishes, catalogue, nav, combos, cart, auth, settings, relations)
+  migrations/         0000_init, 0001_occasion_options
+  seed.ts  seed-data.json  create-admin.ts  index.ts
 lib/
   data/               server-only reads for the storefront
-  admin/              admin reads and Server Actions
-  cart/               cart actions and the guest cookie
-  auth.ts  pricing.ts  images.ts  r2.ts  validation/
+  admin/              admin reads, Server Actions, schemas
+  cart/               cart actions, rules and the guest cookie
+  shopper/            account reads and actions
+  auth.ts  auth-client.ts  session.ts  email.ts  pricing.ts  images.ts  image-loader.ts  r2.ts  cache-tags.ts  validation/
 components/
   admin/              shadcn components and admin forms
 proxy.ts
-drizzle.config.ts
+drizzle.config.ts  components.json  neon.ts
 ```
 
 ## 9. Milestones
@@ -259,15 +269,17 @@ Each one ends with something you can click through.
 
 | # | Milestone | Delivers |
 | --- | --- | --- |
-| 0 | Foundations | Packages, env, Neon + Drizzle, full schema and first migration, route-group split, Tailwind + shadcn in the admin only, Better Auth with password and email code, admin guard, R2 upload component with the resize step. |
-| 1 | Catalogue setup screens | Settings, colours, finishes with slots, effects and colourways, categories, tags. |
-| 2 | Products | Product editor with finishes, images, price grid, sets, similar products. Seed script imports today's 21 products, 6 categories, 7 colours and 32 photos. |
-| 3 | Storefront on the database | Shop, category, occasion and product pages, home featured row, menus. Caching switched on. |
-| 4 | Sign-in, cart, wishlist | Shopper sign-up, password and code sign-in, forgot password, change password, guest cart and wishlist, merge on sign-in, live header count, account details and addresses. |
-| 5 | Combos | Admin combos, combo pages, shopper-built combos, bundles in the cart. |
-| 6 | Finish | Pricing and cart tests, empty and error states, sitemap, deploy. |
+| # | Milestone | Delivers | Status |
+| --- | --- | --- | --- |
+| 0 | Foundations | Packages, env, Neon + Drizzle, full schema and first migration, route-group split, Tailwind + shadcn in the admin only, Better Auth (email and password), admin guard, R2 upload component with the resize step. | Built |
+| 1 | Catalogue setup screens | Settings, colours, finishes with slots, effects and colourways, categories, occasions (tags). | Built |
+| 2 | Products | Product editor with finishes, images, price grid, sets, similar products. Seed script imports today's 21 products, 6 categories, 7 colours and 32 photos. | Built |
+| 3 | Storefront on the database | Shop, category, occasion and product pages, home featured row, menus. Caching switched on. | Built |
+| 4 | Sign-in, cart, wishlist | Shopper sign-up, sign-in, email verification, forgot password, change password, guest cart and wishlist, merge on sign-in, live header count, account details and addresses. | Built |
+| 5 | Combos | Admin combos, combo pages, shopper-built combos, bundles in the cart. | Built |
+| 6 | Finish | Pricing and cart tests, empty and error states, sitemap, deploy. | Partly: pricing and cart tests exist (33 passing). No sitemap, `not-found` or `error` pages found, and no deploy yet. |
 
-Next phase, not in this plan: checkout, Razorpay, orders and order emails, Google and phone sign-in.
+Next phase, not in this plan: checkout, Razorpay, orders and order emails, email-code sign-in, Google and phone sign-in.
 
 ## 10. What I need from you
 
@@ -280,7 +292,7 @@ Next phase, not in this plan: checkout, Razorpay, orders and order emails, Googl
 
 **Content**, needed by milestone 2:
 
-- For each product: which finishes it comes in and the price of each. The seed can only give every product one finish at today's catalogue price; you add the rest in the admin.
+- For each product: which finishes it really comes in and the price of each. The seed gives every product all four finishes at today's catalogue price; you correct them in the admin.
 - The real finishes with their slot names, and a first set of colourways.
 
 **Decisions I made that you may want to change:**
@@ -293,5 +305,4 @@ Next phase, not in this plan: checkout, Razorpay, orders and order emails, Googl
 6. Combo saving is stored as a saving, not as a fixed price, because shoppers can change finishes.
 7. Each product has a "can be used in shopper-built combos" switch, on by default.
 8. Hosting is assumed to be Vercel.
-9. The admin signs in with a password and then an emailed code (two steps). Shoppers need only one of the two.
-10. A shopper who uses "email me a code" with a new email gets an account without a password, and can set one later.
+9. The admin signs in with email and password only, the same as shoppers. A second-step code is deferred.

@@ -1,21 +1,97 @@
+import Image from "next/image";
+import type { ReviewCard, HomeContent } from "@/lib/data/home";
 import { ButtonLink, DISPLAY, Eyebrow } from "../ui";
 
-const reviews = [
-  { label: "[Customer review screenshot 1]", quote: "#D7A49A" },
-  { label: "[Customer review screenshot 2]", quote: "#B6BBA3" },
-  { label: "[Customer review screenshot 3]", quote: "#A4B1BA" },
-];
+function QuoteMark({ colour }: { colour: string }) {
+  return (
+    <svg width="32" height="24" viewBox="0 0 32 24" fill={colour} aria-hidden="true">
+      <path d="M0 24V14C0 6 4 1 12 0l1 4c-4 1-6 4-6 8h6v12zM18 24V14c0-8 4-13 12-14l1 4c-4 1-6 4-6 8h6v12z" />
+    </svg>
+  );
+}
 
-const posts = [
-  { label: "[Post 1]", bg: "#EBCFC8" },
-  { label: "[Post 2]", bg: "#DCDFD1" },
-  { label: "[Post 3]", bg: "#D3DAE0" },
-  { label: "[Post 4]", bg: "#EFE6DC" },
-  { label: "[Post 5]", bg: "#E4C9B6" },
-  { label: "[Post 6]", bg: "#E1DAD3" },
-];
+function Stars({ rating }: { rating: number }) {
+  return (
+    <span role="img" aria-label={`${rating} out of 5 stars`} style={{ color: "#B52D6F", letterSpacing: "0.12em", fontSize: 15 }}>
+      {"★".repeat(rating)}
+      <span style={{ color: "#E6DDD2" }}>{"★".repeat(5 - rating)}</span>
+    </span>
+  );
+}
 
-export default function Reviews() {
+/** "Asha, Pune" — whichever parts are filled in. */
+function byline(r: ReviewCard) {
+  return [r.customerName, r.location].filter(Boolean).join(", ");
+}
+
+function Review({ r }: { r: ReviewCard }) {
+  const who = byline(r);
+  const card = {
+    margin: 0,
+    minWidth: 0,
+    background: "#FFFFFF",
+    border: "1px solid #E6DDD2",
+    borderRadius: 4,
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+    boxSizing: "border-box",
+  } as const;
+
+  // Photo or screenshot, with the quote and name underneath.
+  if (r.image) {
+    return (
+      <figure style={card}>
+        <div style={{ position: "relative", aspectRatio: "4 / 5", background: "#F7F2EC" }}>
+          <Image
+            src={r.image}
+            alt={who ? `Review from ${who}` : "Customer review"}
+            fill
+            sizes="(max-width: 600px) 90vw, 380px"
+            style={{ objectFit: "contain" }}
+          />
+        </div>
+        {(r.quote || who || r.rating) && (
+          <figcaption style={{ display: "flex", flexDirection: "column", gap: 10, padding: "20px 24px 24px" }}>
+            {r.rating ? <Stars rating={r.rating} /> : null}
+            {r.quote && <blockquote style={{ margin: 0, fontSize: 16, lineHeight: 1.6, color: "#3E3550" }}>“{r.quote}”</blockquote>}
+            {who && <span style={{ fontSize: 13, color: "#5F566B", letterSpacing: "0.04em" }}>{who}</span>}
+          </figcaption>
+        )}
+      </figure>
+    );
+  }
+
+  // Words only: the quote on a card, as in the original design.
+  return (
+    <figure style={{ ...card, aspectRatio: "4 / 5", justifyContent: "space-between", padding: 28 }}>
+      <QuoteMark colour={r.accentColour} />
+      <blockquote
+        style={{
+          margin: 0,
+          fontFamily: DISPLAY,
+          fontStyle: "italic",
+          fontWeight: 300,
+          fontSize: "clamp(20px, 2vw, 26px)",
+          lineHeight: 1.3,
+          color: "#2A2238",
+        }}
+      >
+        {r.quote}
+      </blockquote>
+      <figcaption style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {r.rating ? <Stars rating={r.rating} /> : null}
+        {who && <span style={{ fontSize: 13, color: "#5F566B", letterSpacing: "0.04em" }}>{who}</span>}
+      </figcaption>
+    </figure>
+  );
+}
+
+/** Nothing is shown until there is something to show: no placeholder cards on a live site. */
+export default function Reviews({ section }: { section: HomeContent["reviews"] }) {
+  const { cards, tiles, handle, ctaUrl: profileUrl } = section;
+  if (!section.active || (cards.length === 0 && tiles.length === 0 && !handle)) return null;
+
   return (
     <section
       style={{
@@ -24,7 +100,7 @@ export default function Reviews() {
     >
       <div style={{ maxWidth: 1320, margin: "0 auto", display: "flex", flexDirection: "column", gap: 40 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <Eyebrow>Reviews</Eyebrow>
+          {section.eyebrow && <Eyebrow>{section.eyebrow}</Eyebrow>}
           <h2
             style={{
               margin: 0,
@@ -34,84 +110,88 @@ export default function Reviews() {
               lineHeight: 1.05,
             }}
           >
-            Kind words, <em style={{ fontStyle: "italic" }}>in their homes</em>
+            {section.heading}
+            {section.headingEmphasis && (
+              <>
+                {" "}
+                <em style={{ fontStyle: "italic" }}>{section.headingEmphasis}</em>
+              </>
+            )}
           </h2>
         </div>
 
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 20 }}>
-          {reviews.map((r) => (
-            <figure
-              key={r.label}
-              style={{
-                margin: 0,
-                flex: "1 1 280px",
-                minWidth: 0,
-                aspectRatio: "4 / 5",
-                background: "#FFFFFF",
-                border: "1px solid #E6DDD2",
-                borderRadius: 4,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                padding: 28,
-                boxSizing: "border-box",
-              }}
-            >
-              <svg width="32" height="24" viewBox="0 0 32 24" fill={r.quote} aria-hidden="true">
-                <path d="M0 24V14C0 6 4 1 12 0l1 4c-4 1-6 4-6 8h6v12zM18 24V14c0-8 4-13 12-14l1 4c-4 1-6 4-6 8h6v12z" />
-              </svg>
-              <span style={{ fontSize: 13, color: "#5F566B", letterSpacing: "0.04em" }}>{r.label}</span>
-            </figure>
-          ))}
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 16,
-            paddingTop: 48,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2A2238" strokeWidth="1.3" aria-hidden="true">
-              <rect x="3" y="3" width="18" height="18" rx="5" />
-              <circle cx="12" cy="12" r="4" />
-              <circle cx="17.3" cy="6.7" r=".6" fill="#2A2238" />
-            </svg>
-            <span style={{ fontFamily: DISPLAY, fontSize: 28 }}>@[instagram handle]</span>
+        {cards.length > 0 && (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 380px))",
+              justifyContent: "center",
+              gap: 20,
+            }}
+          >
+            {cards.map((r) => (
+              <Review key={r.id} r={r} />
+            ))}
           </div>
-          <ButtonLink href="#" variant="ghost" size="sm">
-            Follow on Instagram
-          </ButtonLink>
-        </div>
+        )}
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 180px), 1fr))",
-            gap: 12,
-          }}
-        >
-          {posts.map((p) => (
-            <div
-              key={p.label}
-              style={{
-                aspectRatio: "1",
-                background: p.bg,
-                borderRadius: 4,
-                display: "grid",
-                placeItems: "center",
-                fontSize: 12,
-                color: "#2A2238",
-              }}
-            >
-              {p.label}
+        {handle && (
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: 16,
+              paddingTop: cards.length > 0 ? 48 : 0,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2A2238" strokeWidth="1.3" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="5" />
+                <circle cx="12" cy="12" r="4" />
+                <circle cx="17.3" cy="6.7" r=".6" fill="#2A2238" />
+              </svg>
+              <span style={{ fontFamily: DISPLAY, fontSize: 28 }}>@{handle}</span>
             </div>
-          ))}
-        </div>
+            {profileUrl && (
+              <ButtonLink href={profileUrl} variant="ghost" size="sm">
+                Follow on Instagram
+              </ButtonLink>
+            )}
+          </div>
+        )}
+
+        {tiles.length > 0 && (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 180px), 1fr))",
+              gap: 12,
+            }}
+          >
+            {tiles.map((t) => {
+              const tile = (
+                <div style={{ position: "relative", aspectRatio: "1", background: "#EFE6DC", borderRadius: 4, overflow: "hidden" }}>
+                  <Image
+                    src={t.image}
+                    alt={t.caption}
+                    fill
+                    sizes="(max-width: 600px) 50vw, 220px"
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              );
+              return t.link ? (
+                <a key={t.id} href={t.link} target="_blank" rel="noopener noreferrer" aria-label={t.caption || "View on Instagram"}>
+                  {tile}
+                </a>
+              ) : (
+                <div key={t.id}>{tile}</div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </section>
   );

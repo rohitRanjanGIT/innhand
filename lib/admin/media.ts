@@ -10,9 +10,12 @@ import { media } from "@/db/schema";
 import { IMAGE_SIZES } from "@/lib/images";
 import {
   ALLOWED_UPLOAD_TYPES,
+  ALLOWED_VIDEO_TYPES,
   getOriginal,
   MAX_UPLOAD_BYTES,
+  MAX_VIDEO_BYTES,
   presignOriginalUpload,
+  presignVideoUpload,
   putWebp,
   r2Configured,
 } from "@/lib/r2";
@@ -54,6 +57,19 @@ export const processUpload = adminAction(z.object({ mediaId: z.uuid() }), async 
   return { id: updated.id, key: updated.r2Key, width: updated.width, height: updated.height, alt: updated.alt };
 });
 
-export const updateAlt = adminAction(z.object({ mediaId: z.uuid(), alt: z.string().max(300) }), async (i) => {
+/** Same idea as requestUpload, for the one short video on the home page. No row: the section keeps the key. */
+export const requestVideoUpload = adminAction(
+  z.object({
+    contentType: z.enum(ALLOWED_VIDEO_TYPES, { message: "Upload an MP4 or WebM video." }),
+    bytes: z.number().int().positive().max(MAX_VIDEO_BYTES, "Videos must be 60 MB or smaller."),
+  }),
+  async ({ contentType, bytes }) => {
+    if (!r2Configured()) throw new ActionError("Image storage (Cloudflare R2) isn't set up yet.");
+    const key = `videos/${randomUUID()}.${contentType === "video/mp4" ? "mp4" : "webm"}`;
+    return { key, uploadUrl: await presignVideoUpload(key, contentType, bytes) };
+  },
+);
+
+export const updateAlt =adminAction(z.object({ mediaId: z.uuid(), alt: z.string().max(300) }), async (i) => {
   await db.update(media).set({ alt: i.alt }).where(eq(media.id, i.mediaId));
 });

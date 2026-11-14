@@ -14,6 +14,11 @@ export function imageUrl(key: string, size: ImageSize = "tile") {
   return `${PUBLIC_URL}/${key}/${size}.webp`;
 }
 
+/** URL of an uploaded video (`videos/<uuid>.mp4`). Videos are stored as uploaded, with no sizes. */
+export function videoUrl(key: string) {
+  return `${PUBLIC_URL}/${key}`;
+}
+
 /** The smallest of the four sizes that is at least `width` wide. */
 export function sizeFor(width: number): ImageSize {
   const entries = Object.entries(IMAGE_SIZES) as [ImageSize, number][];

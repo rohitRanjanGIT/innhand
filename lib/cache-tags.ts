@@ -8,4 +8,6 @@ export const TAGS = {
   finishes: "finishes",
   combos: "combos",
   settings: "settings",
+  /** Home page sections, reviews and Instagram tiles. */
+  home: "home",
 } as const;

@@ -10,6 +10,8 @@ import {
   Palette,
   Brush,
   Layers,
+  LayoutTemplate,
+  MessageSquareQuote,
   Menu,
   Users,
   Settings,
@@ -54,6 +56,13 @@ const groups = [
     items: [
       { href: "/admin/categories", label: "Categories", icon: FolderTree },
       { href: "/admin/occasions", label: "Occasions", icon: Tags },
+    ],
+  },
+  {
+    label: "Home page",
+    items: [
+      { href: "/admin/home", label: "Home sections", icon: LayoutTemplate },
+      { href: "/admin/reviews", label: "Reviews", icon: MessageSquareQuote },
     ],
   },
   {

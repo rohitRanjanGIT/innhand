@@ -5,7 +5,7 @@ import { TAGS } from "@/lib/cache-tags";
 // Called at the end of every catalogue setup Server Action: expires the storefront's cached reads
 // for the given tags and refreshes the admin page the owner is on.
 
-type Area = "settings" | "colours" | "finishes" | "categories" | "tags" | "nav";
+type Area = "settings" | "colours" | "finishes" | "categories" | "tags" | "nav" | "home";
 
 const TAGS_FOR: Record<Area, string[]> = {
   settings: [TAGS.settings],
@@ -14,6 +14,7 @@ const TAGS_FOR: Record<Area, string[]> = {
   categories: [TAGS.categories, TAGS.nav, TAGS.products],
   tags: [TAGS.products, TAGS.nav],
   nav: [TAGS.nav],
+  home: [TAGS.home],
 };
 
 export function changed(area: Area) {
