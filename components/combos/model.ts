@@ -7,11 +7,12 @@ export type Swatch = { slotLabel: string; colourName: string; hex: string };
 
 export type PieceColourway = { id: string; name: string; swatches: Swatch[] };
 
-export type PieceEffectSlot = {
+/** An effect combination of the finish (like a colourway); `price` is per piece. */
+export type PieceEffectOption = {
   id: string;
-  label: string;
-  required: boolean;
-  options: { id: string; name: string; extraPrice: number }[];
+  name: string;
+  price: number;
+  effects: { slot: string; name: string; image: string | null }[];
 };
 
 export type PieceVariant = { id: string; setSize: number; price: number };
@@ -25,7 +26,7 @@ export type PieceFinish = {
   isDefault: boolean;
   images: PieceImage[];
   colourways: PieceColourway[];
-  effectSlots: PieceEffectSlot[];
+  effectOptions: PieceEffectOption[];
   variants: PieceVariant[];
 };
 
@@ -39,32 +40,13 @@ export type PieceProduct = {
   finishes: PieceFinish[];
 };
 
-/** What the shopper has chosen for one piece. `effects` maps effect slot id → option id (or null). */
+/** What the shopper has chosen for one piece. `effectCombinationId` is null for no effect. */
 export type PieceChoice = {
   productFinishId: string;
   setSize: number;
   colourwayId: string | null;
-  effects: Record<string, string | null>;
+  effectCombinationId: string | null;
 };
-
-/**
- * The option an effect slot starts on. Required slots start on their first option. Optional slots
- * start on a free option when there is one ("None"), otherwise on nothing.
- */
-export function defaultEffectOption(slot: PieceEffectSlot): string | null {
-  if (slot.options.length === 0) return null;
-  if (slot.required) return slot.options[0].id;
-  return slot.options.find((o) => o.extraPrice === 0)?.id ?? null;
-}
-
-/** Whether an optional slot needs its own "None" choice (it has no free option of its own). */
-export function needsNoneChoice(slot: PieceEffectSlot) {
-  return !slot.required && !slot.options.some((o) => o.extraPrice === 0);
-}
-
-export function defaultEffects(finish: PieceFinish): Record<string, string | null> {
-  return Object.fromEntries(finish.effectSlots.map((s) => [s.id, defaultEffectOption(s)]));
-}
 
 /** A fresh choice inside `finish`, keeping the set size when that finish offers it. */
 export function choiceForFinish(finish: PieceFinish, preferredSetSize?: number): PieceChoice {
@@ -73,7 +55,7 @@ export function choiceForFinish(finish: PieceFinish, preferredSetSize?: number):
     productFinishId: finish.productFinishId,
     setSize: v?.setSize ?? 1,
     colourwayId: finish.colourways[0]?.id ?? null,
-    effects: defaultEffects(finish),
+    effectCombinationId: null,
   };
 }
 
@@ -94,12 +76,9 @@ export function variantOf(p: PieceProduct, c: PieceChoice) {
   return finishOf(p, c)?.variants.find((v) => v.setSize === c.setSize) ?? null;
 }
 
-function chosenOptions(f: PieceFinish, c: PieceChoice) {
-  return f.effectSlots.flatMap((s) => {
-    const id = c.effects[s.id];
-    const o = id ? s.options.find((x) => x.id === id) : undefined;
-    return o ? [o] : [];
-  });
+/** The chosen effect combination, or null (none chosen, or no longer offered). */
+export function effectOf(f: PieceFinish, c: PieceChoice) {
+  return f.effectOptions.find((o) => o.id === c.effectCombinationId) ?? null;
 }
 
 /** The priced line for one piece (qty 1), or null if the choice no longer matches the catalogue. */
@@ -107,7 +86,7 @@ export function pricedLine(p: PieceProduct, c: PieceChoice): PricedLine | null {
   const f = finishOf(p, c);
   const v = f?.variants.find((x) => x.setSize === c.setSize);
   if (!f || !v) return null;
-  return { variantPrice: v.price, effectExtras: chosenOptions(f, c).map((o) => o.extraPrice), setSize: c.setSize, qty: 1 };
+  return { variantPrice: v.price, effectExtras: effectOf(f, c) ? [effectOf(f, c)!.price] : [], setSize: c.setSize, qty: 1 };
 }
 
 /** The cart line for one piece. */
@@ -118,7 +97,7 @@ export function lineChoice(p: PieceProduct, c: PieceChoice): LineChoice | null {
   return {
     variantId: v.id,
     colourwayId: c.colourwayId,
-    effectOptionIds: chosenOptions(f, c).map((o) => o.id),
+    effectCombinationId: effectOf(f, c)?.id ?? null,
     qty: 1,
   };
 }

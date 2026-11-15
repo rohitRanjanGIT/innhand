@@ -2,19 +2,21 @@ import "server-only";
 import { asc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
-  cartItemEffects,
   cartItems,
   colours,
   colourwayColours,
   colourways,
+  effects,
   finishColourSlots,
-  finishEffectOptions,
+  effectCombinations,
   finishEffectSlots,
   finishes,
+  media,
   productFinishImages,
   productFinishes,
 } from "@/db/schema";
 import { readSettingsUncached } from "@/lib/data/settings";
+import { imageUrl } from "@/lib/images";
 import { requireAdmin } from "@/lib/session";
 
 /** The palette, in the admin's order, with how many colourways use each colour. */
@@ -32,6 +34,27 @@ export async function listColours() {
     .orderBy(asc(colours.sort), asc(colours.name));
 }
 export type AdminColour = Awaited<ReturnType<typeof listColours>>[number];
+
+/** The effects library, in the admin's order, with how many finishes offer each effect. */
+export async function listEffects() {
+  await requireAdmin();
+  const rows = await db
+    .select({
+      id: effects.id,
+      name: effects.name,
+      imageId: effects.imageId,
+      imageKey: media.r2Key,
+      active: effects.active,
+      /** Finishes with an effect combination that uses this effect. */
+      usedBy: sql<number>`(select count(distinct ec.finish_id)::int from effect_combination_effects ece
+        join effect_combinations ec on ec.id = ece.combination_id where ece.effect_id = "effects"."id")`,
+    })
+    .from(effects)
+    .leftJoin(media, eq(media.id, effects.imageId))
+    .orderBy(asc(effects.sort), asc(effects.name));
+  return rows.map(({ imageKey, ...r }) => ({ ...r, imageUrl: imageKey ? imageUrl(imageKey, "thumb") : null }));
+}
+export type AdminEffect = Awaited<ReturnType<typeof listEffects>>[number];
 
 export async function listFinishes() {
   await requireAdmin();
@@ -62,9 +85,10 @@ export async function getFinishEditor(id: string) {
     where: eq(finishes.id, id),
     with: {
       colourSlots: { orderBy: asc(finishColourSlots.position) },
-      effectSlots: {
-        orderBy: asc(finishEffectSlots.position),
-        with: { options: { orderBy: [asc(finishEffectOptions.sort), asc(finishEffectOptions.name)] } },
+      effectSlots: { orderBy: asc(finishEffectSlots.position) },
+      effectCombinations: {
+        orderBy: [asc(effectCombinations.sort), asc(effectCombinations.name)],
+        with: { effects: true },
       },
       colourways: {
         orderBy: [asc(colourways.sort), asc(colourways.name)],
@@ -74,19 +98,24 @@ export async function getFinishEditor(id: string) {
   });
   if (!finish) return null;
 
-  const optionIds = finish.effectSlots.flatMap((s) => s.options.map((o) => o.id));
+  const comboIds = finish.effectCombinations.map((c) => c.id);
   const cwIds = finish.colourways.map((c) => c.id);
-  const [settings, palette, usedOptions, usedColourways, productCount] = await Promise.all([
+  const [settings, palette, library, usedEffects, usedColourways, productCount] = await Promise.all([
     readSettingsUncached(),
     db
       .select({ id: colours.id, name: colours.name, hex: colours.hex, active: colours.active })
       .from(colours)
       .orderBy(asc(colours.sort), asc(colours.name)),
-    optionIds.length
+    db
+      .select({ id: effects.id, name: effects.name, active: effects.active, imageKey: media.r2Key })
+      .from(effects)
+      .leftJoin(media, eq(media.id, effects.imageId))
+      .orderBy(asc(effects.sort), asc(effects.name)),
+    comboIds.length
       ? db
-          .selectDistinct({ id: cartItemEffects.effectOptionId })
-          .from(cartItemEffects)
-          .where(inArray(cartItemEffects.effectOptionId, optionIds))
+          .selectDistinct({ id: cartItems.effectCombinationId })
+          .from(cartItems)
+          .where(inArray(cartItems.effectCombinationId, comboIds))
       : Promise.resolve([]),
     cwIds.length
       ? db.execute<{ id: string }>(sql`
@@ -96,13 +125,15 @@ export async function getFinishEditor(id: string) {
       : Promise.resolve({ rows: [] as { id: string }[] }),
     db.$count(productFinishes, eq(productFinishes.finishId, id)),
   ]);
-  const usedOpt = new Set(usedOptions.map((r) => r.id));
+  const inCarts = new Set(usedEffects.map((r) => r.id));
   const usedCw = new Set(usedColourways.rows.map((r) => r.id));
 
   return {
     scc: settings.secondaryColourCount,
     sec: settings.effectCount,
     palette,
+    /** Every library effect, so the editor can offer the ones not on this finish yet. */
+    library: library.map(({ imageKey, ...e }) => ({ ...e, imageUrl: imageKey ? imageUrl(imageKey, "thumb") : null })),
     productCount,
     finish: {
       id: finish.id,
@@ -111,19 +142,18 @@ export async function getFinishEditor(id: string) {
       description: finish.description,
       active: finish.active,
       colourSlots: finish.colourSlots.map((s) => ({ id: s.id, position: s.position, label: s.label })),
-      effectSlots: finish.effectSlots.map((s) => ({
-        id: s.id,
-        label: s.label,
-        required: s.required,
-        options: s.options.map((o) => ({
-          id: o.id,
-          name: o.name,
-          extraPrice: o.extraPrice,
-          active: o.active,
-          inCarts: usedOpt.has(o.id),
-        })),
-      })),
+      effectSlots: finish.effectSlots.map((s) => ({ id: s.id, position: s.position, label: s.label })),
     },
+    effectCombinations: finish.effectCombinations.map((c) => ({
+      id: c.id,
+      name: c.name,
+      sellingPrice: c.sellingPrice,
+      costPrice: c.costPrice,
+      active: c.active,
+      inUse: inCarts.has(c.id),
+      /** Effect slot id → library effect id. */
+      effects: Object.fromEntries(c.effects.map((e) => [e.slotId, e.effectId])) as Record<string, string>,
+    })),
     colourways: finish.colourways.map((c) => ({
       id: c.id,
       name: c.name,

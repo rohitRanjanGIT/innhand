@@ -50,6 +50,17 @@ export const colourSchema = z.object({
 });
 export type ColourInput = z.input<typeof colourSchema>;
 
+// ---------- Effects library ----------
+
+export const effectSchema = z.object({
+  id: id.optional(),
+  name: name("Name", 80),
+  /** Required for new effects; effects carried over from the old slots may still have none. */
+  imageId: id.nullable(),
+  active: z.boolean(),
+});
+export type EffectInput = z.input<typeof effectSchema>;
+
 // ---------- Finishes ----------
 
 export const finishCreateSchema = z.object({ name: name(), slug });
@@ -66,23 +77,8 @@ export const finishSaveSchema = z.object({
   colourSlots: z
     .array(z.object({ id: id.optional(), label: slotLabel }))
     .min(1, "The base colour slot is required."),
-  effectSlots: z.array(
-    z.object({
-      id: id.optional(),
-      label: slotLabel,
-      required: z.boolean(),
-      options: z
-        .array(
-          z.object({
-            id: id.optional(),
-            name: name("Option name", 80),
-            extraPrice: rupees("Extra price"),
-            active: z.boolean(),
-          }),
-        )
-        .max(50),
-    }),
-  ),
+  /** Named effect slots, in order (up to SEC). Like colour slots, but with no base slot. */
+  effectSlots: z.array(z.object({ id: id.optional(), label: slotLabel })),
 });
 export type FinishSaveInput = z.input<typeof finishSaveSchema>;
 
@@ -95,6 +91,18 @@ export const colourwaySchema = z.object({
   colours: z.array(z.object({ slotId: id, colourId: id })).min(1),
 });
 export type ColourwayInput = z.input<typeof colourwaySchema>;
+
+/** Like a colourway: one library effect per effect slot of the finish, with its own prices. */
+export const effectCombinationSchema = z.object({
+  id: id.optional(),
+  finishId: id,
+  name: name("Name", 80),
+  sellingPrice: rupees("Selling price"),
+  costPrice: rupees("Cost price").nullable(),
+  active: z.boolean(),
+  effects: z.array(z.object({ slotId: id, effectId: id })).min(1, "Pick an effect for every slot."),
+});
+export type EffectCombinationInput = z.input<typeof effectCombinationSchema>;
 
 export const reorderInSchema = z.object({ parentId: id, ids: z.array(id).min(1).max(1000) });
 

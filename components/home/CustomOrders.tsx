@@ -1,10 +1,17 @@
 import { getSettings, whatsappUrl } from "@/lib/data/settings";
 import { ButtonLink, DISPLAY, Eyebrow } from "../ui";
 
-export default async function CustomOrders() {
+/**
+ * `spaced` adds a gap above the block. Use it when the section before has no bottom padding of its own,
+ * e.g. the home page without reviews. It matches the bottom padding of the Reviews section.
+ */
+export default async function CustomOrders({ spaced = false }: { spaced?: boolean }) {
   const { whatsappNumber } = await getSettings();
   return (
-    <section id="custom" style={{ padding: "0 clamp(16px, 3vw, 40px) clamp(80px, 9vw, 140px)" }}>
+    <section
+      id="custom"
+      style={{ padding: `${spaced ? "clamp(56px, 6vw, 96px)" : "0"} clamp(16px, 3vw, 40px) clamp(80px, 9vw, 140px)` }}
+    >
       <div
         style={{
           maxWidth: 1320,

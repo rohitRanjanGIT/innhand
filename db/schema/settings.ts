@@ -5,7 +5,7 @@ export const storeSettings = pgTable("store_settings", {
   id: integer("id").primaryKey().default(1),
   /** SCC: how many secondary colour slots a finish may have. */
   secondaryColourCount: integer("secondary_colour_count").notNull().default(2),
-  /** SEC: how many effect slots a finish may have. */
+  /** SEC: how many named effect slots a finish may have. */
   effectCount: integer("effect_count").notNull().default(1),
   defaultCartLimit: integer("default_cart_limit").notNull().default(10),
   customCombosEnabled: boolean("custom_combos_enabled").notNull().default(true),

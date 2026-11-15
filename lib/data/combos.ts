@@ -13,8 +13,10 @@ import {
   comboImages,
   comboItems,
   combos,
+  effectCombinationEffects,
+  effectCombinations,
+  effects,
   finishColourSlots,
-  finishEffectOptions,
   finishEffectSlots,
   finishes,
   media,
@@ -83,7 +85,7 @@ export async function loadPieceOptions(productIds: string[]): Promise<Map<string
     return out;
   }
 
-  const [variantRows, imageRows, slotRows, cwRows, cwColourRows, effectSlotRows, optionRows] = await Promise.all([
+  const [variantRows, imageRows, slotRows, cwRows, cwColourRows, effectRows] = await Promise.all([
     db
       .select({
         id: productVariants.id,
@@ -131,27 +133,26 @@ export async function loadPieceOptions(productIds: string[]): Promise<Map<string
       .innerJoin(colourways, eq(colourways.id, colourwayColours.colourwayId))
       .innerJoin(colours, eq(colours.id, colourwayColours.colourId))
       .where(inArray(colourways.finishId, finishIds)),
+    // Selling price only: cost price never reaches the storefront.
     db
       .select({
-        id: finishEffectSlots.id,
-        finishId: finishEffectSlots.finishId,
-        label: finishEffectSlots.label,
-        required: finishEffectSlots.required,
+        id: effectCombinations.id,
+        finishId: effectCombinations.finishId,
+        name: effectCombinations.name,
+        price: effectCombinations.sellingPrice,
+        slot: finishEffectSlots.label,
+        slotPosition: finishEffectSlots.position,
+        effectName: effects.name,
+        effectActive: effects.active,
+        image: media.r2Key,
       })
-      .from(finishEffectSlots)
-      .where(inArray(finishEffectSlots.finishId, finishIds))
-      .orderBy(asc(finishEffectSlots.position)),
-    db
-      .select({
-        id: finishEffectOptions.id,
-        slotId: finishEffectOptions.slotId,
-        name: finishEffectOptions.name,
-        extraPrice: finishEffectOptions.extraPrice,
-      })
-      .from(finishEffectOptions)
-      .innerJoin(finishEffectSlots, eq(finishEffectSlots.id, finishEffectOptions.slotId))
-      .where(and(inArray(finishEffectSlots.finishId, finishIds), eq(finishEffectOptions.active, true)))
-      .orderBy(asc(finishEffectOptions.sort), asc(finishEffectOptions.name)),
+      .from(effectCombinations)
+      .innerJoin(effectCombinationEffects, eq(effectCombinationEffects.combinationId, effectCombinations.id))
+      .innerJoin(finishEffectSlots, eq(finishEffectSlots.id, effectCombinationEffects.slotId))
+      .innerJoin(effects, eq(effects.id, effectCombinationEffects.effectId))
+      .leftJoin(media, eq(media.id, effects.imageId))
+      .where(and(inArray(effectCombinations.finishId, finishIds), eq(effectCombinations.active, true)))
+      .orderBy(asc(effectCombinations.sort), asc(effectCombinations.name), asc(finishEffectSlots.position)),
   ]);
 
   const slotById = new Map(slotRows.map((s) => [s.id, s]));
@@ -163,7 +164,7 @@ export async function loadPieceOptions(productIds: string[]): Promise<Map<string
     swatchesByCw.set(c.colourwayId, list);
   }
 
-  const finishCache = new Map<string, Pick<PieceFinish, "colourways" | "effectSlots">>();
+  const finishCache = new Map<string, Pick<PieceFinish, "colourways" | "effectOptions">>();
   const finishParts = (finishId: string) => {
     let parts = finishCache.get(finishId);
     if (!parts) {
@@ -177,17 +178,7 @@ export async function loadPieceOptions(productIds: string[]): Promise<Map<string
               .sort((a, b) => a.position - b.position)
               .map(({ slotLabel, colourName, hex }) => ({ slotLabel, colourName, hex })),
           })),
-        effectSlots: effectSlotRows
-          .filter((s) => s.finishId === finishId)
-          .map((s) => ({
-            id: s.id,
-            label: s.label,
-            required: s.required,
-            options: optionRows
-              .filter((o) => o.slotId === s.id)
-              .map((o) => ({ id: o.id, name: o.name, extraPrice: o.extraPrice })),
-          }))
-          .filter((s) => s.options.length > 0),
+        effectOptions: groupCombinations(effectRows.filter((e) => e.finishId === finishId)),
       };
       finishCache.set(finishId, parts);
     }
@@ -230,13 +221,31 @@ function strip({ status: _s, comboEligible: _c, ...piece }: LoadedPiece): PieceP
   return piece;
 }
 
+/**
+ * Effect combination rows (one per effect, in combination then slot order) grouped into combinations.
+ * Archiving an effect in the library hides every combination that uses it.
+ */
+function groupCombinations(
+  rows: { id: string; name: string; price: number; slot: string; effectName: string; effectActive: boolean; image: string | null }[],
+) {
+  const out: PieceFinish["effectOptions"] = [];
+  const hidden = new Set(rows.filter((r) => !r.effectActive).map((r) => r.id));
+  for (const r of rows) {
+    if (hidden.has(r.id)) continue;
+    let c = out.find((x) => x.id === r.id);
+    if (!c) out.push((c = { id: r.id, name: r.name, price: r.price, effects: [] }));
+    c.effects.push({ slot: r.slot, name: r.effectName, image: r.image });
+  }
+  return out;
+}
+
 // ---------------------------------------------------------------------------------------------
 // Admin combos on the storefront
 // ---------------------------------------------------------------------------------------------
 
 export type ComboPiece = {
   product: PieceProduct;
-  /** The admin's default finish and set size, with the default colourway and effects. */
+  /** The admin's default finish and set size, with the default colourway and no effects. */
   choice: PieceChoice;
 };
 

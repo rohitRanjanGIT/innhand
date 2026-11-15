@@ -240,14 +240,21 @@ export async function loadProduct(slug: string): Promise<ProductDetail | null> {
                 columns: { id: true, label: true, position: true },
                 orderBy: (s, { asc: a }) => [a(s.position)],
               },
-              effectSlots: {
-                columns: { id: true, label: true, required: true, position: true },
-                orderBy: (s, { asc: a }) => [a(s.position)],
+              // Cost price is never selected for the storefront.
+              effectCombinations: {
+                where: (c, { eq: e }) => e(c.active, true),
+                columns: { id: true, name: true, sellingPrice: true },
+                orderBy: (c, { asc: a }) => [a(c.sort), a(c.name)],
                 with: {
-                  options: {
-                    where: (o, { eq: e }) => e(o.active, true),
-                    columns: { id: true, name: true, extraPrice: true },
-                    orderBy: (o, { asc: a }) => [a(o.sort), a(o.name)],
+                  effects: {
+                    columns: { slotId: true },
+                    with: {
+                      slot: { columns: { label: true, position: true } },
+                      effect: {
+                        columns: { name: true, active: true },
+                        with: { image: { columns: { r2Key: true } } },
+                      },
+                    },
                   },
                 },
               },
@@ -298,9 +305,17 @@ export async function loadProduct(slug: string): Promise<ProductDetail | null> {
             .sort((a, b) => slotLabel.get(a.slotId)!.position - slotLabel.get(b.slotId)!.position)
             .map((c) => ({ slotLabel: slotLabel.get(c.slotId)!.label, name: c.colour.name, hex: c.colour.hex })),
         })),
-        effectSlots: pf.finish.effectSlots
-          .filter((s) => s.options.length > 0)
-          .map((s) => ({ id: s.id, label: s.label, required: s.required, options: s.options })),
+        effectOptions: pf.finish.effectCombinations
+          // Archiving an effect in the library hides every combination that uses it.
+          .filter((c) => c.effects.length > 0 && c.effects.every((e) => e.effect.active))
+          .map((c) => ({
+            id: c.id,
+            name: c.name,
+            price: c.sellingPrice,
+            effects: [...c.effects]
+              .sort((x, y) => x.slot.position - y.slot.position)
+              .map((e) => ({ slot: e.slot.label, name: e.effect.name, image: e.effect.image?.r2Key ?? null })),
+          })),
         variants: pf.variants.map((v) => ({ id: v.id, setSize: v.setSize, price: v.price })),
       };
     });

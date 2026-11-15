@@ -11,9 +11,8 @@ import { lineKey, planMerge } from "./rules";
 async function linesOf(tx: Tx, cartId: string) {
   return tx.query.cartItems.findMany({
     where: (i, { eq: e }) => e(i.cartId, cartId),
-    columns: { id: true, bundleId: true, variantId: true, colourwayId: true, qty: true },
+    columns: { id: true, bundleId: true, variantId: true, colourwayId: true, effectCombinationId: true, qty: true },
     with: {
-      effects: { columns: { effectOptionId: true } },
       variant: {
         columns: { id: true },
         with: {
@@ -58,7 +57,7 @@ export async function mergeGuestIntoUser(guestId: string, userId: string) {
           key: lineKey(
             r.variantId,
             r.colourwayId,
-            r.effects.map((e) => e.effectOptionId),
+            r.effectCombinationId ? [r.effectCombinationId] : [],
           ),
         });
         const toBundle = (rows: typeof userRows) => (b: { id: string; qty: number }) => ({

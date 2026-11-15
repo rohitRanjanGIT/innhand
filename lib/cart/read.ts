@@ -28,7 +28,7 @@ export async function loadCartRows(cartId: string) {
         with: { combo: { columns: { name: true, slug: true, status: true, discountType: true, discountValue: true } } },
       },
       items: {
-        columns: { id: true, bundleId: true, variantId: true, colourwayId: true, qty: true, createdAt: true },
+        columns: { id: true, bundleId: true, variantId: true, colourwayId: true, effectCombinationId: true, qty: true, createdAt: true },
         orderBy: (i) => [asc(i.createdAt), asc(i.id)],
         with: {
           variant: {
@@ -60,14 +60,9 @@ export async function loadCartRows(cartId: string) {
               },
             },
           },
-          effects: {
-            columns: { effectOptionId: true },
-            with: {
-              option: {
-                columns: { id: true, name: true, extraPrice: true, active: true },
-                with: { slot: { columns: { label: true, position: true } } },
-              },
-            },
+          effectCombination: {
+            columns: { name: true, sellingPrice: true, active: true },
+            with: { effects: { columns: { slotId: true }, with: { effect: { columns: { active: true } } } } },
           },
         },
       },
@@ -86,7 +81,7 @@ export function itemKey(i: ItemRow) {
   return lineKey(
     i.variantId,
     i.colourwayId,
-    i.effects.map((e) => e.effectOptionId),
+    i.effectCombinationId ? [i.effectCombinationId] : [],
   );
 }
 
@@ -98,14 +93,16 @@ function isAvailable(i: ItemRow) {
     pf.finish.active &&
     i.variant.active &&
     (i.colourway === null || i.colourway.active) &&
-    i.effects.every((e) => e.option.active)
+    // An effect combination switched off, or one using an effect archived in the library, flags the line.
+    (i.effectCombination === null ||
+      (i.effectCombination.active && i.effectCombination.effects.every((e) => e.effect.active)))
   );
 }
 
 function pricedLine(i: ItemRow, qty = i.qty): PricedLine {
   return {
     variantPrice: isAvailable(i) ? i.variant.price : null,
-    effectExtras: i.effects.map((e) => e.option.extraPrice),
+    effectExtras: i.effectCombination ? [i.effectCombination.sellingPrice] : [],
     setSize: i.variant.setSize,
     qty,
   };
@@ -168,9 +165,7 @@ function lineView(i: ItemRow, maxQty: number): CartLineView {
             .map((c) => ({ name: c.colour.name, hex: c.colour.hex })),
         }
       : null,
-    effects: [...i.effects]
-      .sort((a, b) => a.option.slot.position - b.option.slot.position)
-      .map((e) => ({ slot: e.option.slot.label, option: e.option.name })),
+    effects: i.effectCombination ? [i.effectCombination.name] : [],
     qty: i.qty,
     unitPrice: unitPrice(priced),
     lineTotal: lineTotal(priced),

@@ -87,10 +87,14 @@ function Review({ r }: { r: ReviewCard }) {
   );
 }
 
+/** Whether the section has anything to show. Callers use it to keep the page spacing even when it is hidden. */
+export const hasReviews = (section: HomeContent["reviews"]) =>
+  section.active && (section.cards.length > 0 || section.tiles.length > 0 || !!section.handle);
+
 /** Nothing is shown until there is something to show: no placeholder cards on a live site. */
 export default function Reviews({ section }: { section: HomeContent["reviews"] }) {
   const { cards, tiles, handle, ctaUrl: profileUrl } = section;
-  if (!section.active || (cards.length === 0 && tiles.length === 0 && !handle)) return null;
+  if (!hasReviews(section)) return null;
 
   return (
     <section

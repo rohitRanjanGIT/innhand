@@ -1,11 +1,12 @@
 // The cart's public contract, shared by the product page, the combo pages and the cart page.
 // lib/cart/actions.ts ("use server") implements these; this file holds only types.
 
-/** One piece the shopper chose: a variant (finish × set size) in a colourway, with effect options. */
+/** One piece the shopper chose: a variant (finish × set size) in a colourway, with an effect combination or none. */
 export type LineChoice = {
   variantId: string;
   colourwayId: string | null;
-  effectOptionIds: string[];
+  /** An effect combination of the variant's finish, or null for no effect. */
+  effectCombinationId: string | null;
   qty: number;
 };
 

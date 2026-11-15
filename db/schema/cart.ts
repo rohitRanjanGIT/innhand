@@ -2,7 +2,7 @@ import { boolean, index, integer, pgTable, primaryKey, text, uniqueIndex, uuid }
 import { sql } from "drizzle-orm";
 import { base } from "./_shared";
 import { user } from "./auth";
-import { colourways, finishEffectOptions } from "./finishes";
+import { colourways, effectCombinations } from "./finishes";
 import { products, productVariants } from "./catalogue";
 import { combos } from "./combos";
 
@@ -52,7 +52,7 @@ export const cartBundles = pgTable("cart_bundles", {
   qty: integer("qty").notNull().default(1),
 });
 
-/** One variant in one colourway with one set of effects. Prices are never stored here. */
+/** One variant in one colourway with at most one effect combination. Prices are never stored here. */
 export const cartItems = pgTable(
   "cart_items",
   {
@@ -65,22 +65,11 @@ export const cartItems = pgTable(
       .notNull()
       .references(() => productVariants.id, { onDelete: "cascade" }),
     colourwayId: uuid("colourway_id").references(() => colourways.id, { onDelete: "set null" }),
+    /** The chosen effect combination, or none. Deleting a combination a cart holds is refused (archive it). */
+    effectCombinationId: uuid("effect_combination_id").references(() => effectCombinations.id, { onDelete: "restrict" }),
     qty: integer("qty").notNull().default(1),
   },
   (t) => [index("cart_items_cart_idx").on(t.cartId)],
-);
-
-export const cartItemEffects = pgTable(
-  "cart_item_effects",
-  {
-    cartItemId: uuid("cart_item_id")
-      .notNull()
-      .references(() => cartItems.id, { onDelete: "cascade" }),
-    effectOptionId: uuid("effect_option_id")
-      .notNull()
-      .references(() => finishEffectOptions.id, { onDelete: "cascade" }),
-  },
-  (t) => [primaryKey({ columns: [t.cartItemId, t.effectOptionId] })],
 );
 
 export const wishlistItems = pgTable(

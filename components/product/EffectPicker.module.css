@@ -1,0 +1,26 @@
+.pill {
+  gap: 8px;
+}
+
+/* Small round samples of the combination's effects, overlapping, inside the pill. */
+.thumbs {
+  display: inline-flex;
+  margin-left: -10px;
+}
+
+.thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+  box-shadow: 0 0 0 2px #F7F2EC;
+}
+
+.thumb + .thumb {
+  margin-left: -8px;
+}
+
+.price {
+  opacity: .75;
+}

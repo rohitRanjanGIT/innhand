@@ -2,13 +2,14 @@
 import { and, eq, inArray, max, sql } from "drizzle-orm";
 import { db, type Tx } from "@/db";
 import {
-  cartItemEffects,
   cartItems,
   colours,
   colourwayColours,
   colourways,
+  effects,
   finishColourSlots,
-  finishEffectOptions,
+  effectCombinationEffects,
+  effectCombinations,
   finishEffectSlots,
   finishes,
   productFinishImages,
@@ -21,6 +22,7 @@ import { changed } from "./catalogue-cache";
 import { assertSlugFree } from "./slug-check";
 import {
   colourwaySchema,
+  effectCombinationSchema,
   finishCreateSchema,
   finishSaveSchema,
   idSchema,
@@ -61,7 +63,8 @@ export const deleteFinish = adminAction(idSchema, async ({ id }) => {
 
 /**
  * Saves the finish editor in one transaction: details, colour slots (position 0 is the base and is
- * never removed), effect slots and their options. Removing a slot that a cart points at is refused.
+ * never removed) and the named effect slots. Removing an effect slot removes its effect from every
+ * effect combination of this finish, the same as colour slots and colourways.
  */
 export const saveFinish = adminAction(finishSaveSchema, async (input) => {
   await readSettingsUncached(); // makes sure the settings row exists
@@ -77,7 +80,7 @@ export const saveFinish = adminAction(finishSaveSchema, async (input) => {
     if (secondary > settings.scc)
       throw new ActionError(`A finish can have at most ${settings.scc} secondary colour(s) (Settings → SCC).`);
     if (input.effectSlots.length > settings.sec)
-      throw new ActionError(`A finish can have at most ${settings.sec} effect(s) (Settings → SEC).`);
+      throw new ActionError(`A finish can have at most ${settings.sec} effect slot(s) (Settings → SEC).`);
 
     const [updated] = await tx
       .update(finishes)
@@ -122,79 +125,112 @@ async function saveColourSlots(tx: Tx, finishId: string, slots: SlotIn[]) {
   }
 }
 
-type EffectSlotIn = {
-  id?: string;
-  label: string;
-  required: boolean;
-  options: { id?: string; name: string; extraPrice: number; active: boolean }[];
-};
-
-async function saveEffectSlots(tx: Tx, finishId: string, slots: EffectSlotIn[]) {
+async function saveEffectSlots(tx: Tx, finishId: string, slots: SlotIn[]) {
   const existing = await tx
     .select({ id: finishEffectSlots.id })
     .from(finishEffectSlots)
     .where(eq(finishEffectSlots.finishId, finishId));
   const known = new Set(existing.map((s) => s.id));
-  for (const s of slots) if (s.id && !known.has(s.id)) throw new ActionError("An effect doesn't belong to this finish. Reload and try again.");
+  for (const s of slots)
+    if (s.id && !known.has(s.id)) throw new ActionError("An effect slot doesn't belong to this finish. Reload and try again.");
   const kept = new Set(slots.flatMap((s) => (s.id ? [s.id] : [])));
   const removed = [...known].filter((id) => !kept.has(id));
+  // Deleting a slot also deletes the combinations' effect for it (cascade).
+  if (removed.length) await tx.delete(finishEffectSlots).where(inArray(finishEffectSlots.id, removed));
 
-  const existingOptions = existing.length
-    ? await tx
-        .select({ id: finishEffectOptions.id, slotId: finishEffectOptions.slotId })
-        .from(finishEffectOptions)
-        .where(inArray(finishEffectOptions.slotId, [...known]))
-    : [];
-  const inCarts = existingOptions.length
-    ? new Set(
-        (
-          await tx
-            .selectDistinct({ id: cartItemEffects.effectOptionId })
-            .from(cartItemEffects)
-            .where(inArray(cartItemEffects.effectOptionId, existingOptions.map((o) => o.id)))
-        ).map((r) => r.id),
-      )
-    : new Set<string>();
-
-  if (removed.length) {
-    const blocked = existingOptions.some((o) => removed.includes(o.slotId) && inCarts.has(o.id));
-    if (blocked) throw new ActionError("An effect you removed has options in shoppers' carts. Archive those options instead.");
-    await tx.delete(finishEffectSlots).where(inArray(finishEffectSlots.id, removed));
-  }
-
+  // Move kept slots out of the way first: (finish_id, position) is unique.
   for (const [i, id] of [...kept].entries())
     await tx.update(finishEffectSlots).set({ position: -1 - i }).where(eq(finishEffectSlots.id, id));
-
   for (const [position, s] of slots.entries()) {
-    let slotId = s.id;
-    if (slotId) {
-      await tx
-        .update(finishEffectSlots)
-        .set({ position, label: s.label, required: s.required })
-        .where(eq(finishEffectSlots.id, slotId));
-    } else {
-      const [row] = await tx
-        .insert(finishEffectSlots)
-        .values({ finishId, position, label: s.label, required: s.required })
-        .returning({ id: finishEffectSlots.id });
-      slotId = row.id;
-    }
-
-    const ownOptions = new Set(existingOptions.filter((o) => o.slotId === slotId).map((o) => o.id));
-    for (const o of s.options) if (o.id && !ownOptions.has(o.id)) throw new ActionError("An effect option doesn't belong to its effect. Reload and try again.");
-    const keptOptions = new Set(s.options.flatMap((o) => (o.id ? [o.id] : [])));
-    const removedOptions = [...ownOptions].filter((id) => !keptOptions.has(id));
-    if (removedOptions.some((id) => inCarts.has(id)))
-      throw new ActionError("An option you removed is in shoppers' carts. Archive it (switch Active off) instead.");
-    if (removedOptions.length) await tx.delete(finishEffectOptions).where(inArray(finishEffectOptions.id, removedOptions));
-
-    for (const [sort, o] of s.options.entries()) {
-      const values = { name: o.name, extraPrice: o.extraPrice, active: o.active, sort };
-      if (o.id) await tx.update(finishEffectOptions).set(values).where(eq(finishEffectOptions.id, o.id));
-      else await tx.insert(finishEffectOptions).values({ ...values, slotId });
-    }
+    if (s.id) await tx.update(finishEffectSlots).set({ position, label: s.label }).where(eq(finishEffectSlots.id, s.id));
+    else await tx.insert(finishEffectSlots).values({ finishId, position, label: s.label });
   }
 }
+
+// ---------- Effect combinations (like colourways) ----------
+
+export const saveEffectCombination = adminAction(effectCombinationSchema, async (input) => {
+  const slots = await db
+    .select({ id: finishEffectSlots.id })
+    .from(finishEffectSlots)
+    .where(eq(finishEffectSlots.finishId, input.finishId));
+  if (slots.length === 0) throw new ActionError("Add an effect slot to the finish first.");
+  const picked = new Map(input.effects.map((e) => [e.slotId, e.effectId]));
+  if (picked.size !== input.effects.length || picked.size !== slots.length || slots.some((s) => !picked.has(s.id)))
+    throw new ActionError("Pick one effect for every slot.");
+  const effectIds = [...new Set(picked.values())];
+  const found = await db
+    .select({ id: effects.id, active: effects.active })
+    .from(effects)
+    .where(inArray(effects.id, effectIds));
+  if (found.length !== effectIds.length) throw new ActionError("A picked effect no longer exists.");
+
+  await db.transaction(async (tx) => {
+    let id = input.id;
+    const values = {
+      name: input.name,
+      sellingPrice: input.sellingPrice,
+      costPrice: input.costPrice,
+      active: input.active,
+    };
+    if (id) {
+      const before = await tx
+        .select({ effectId: effectCombinationEffects.effectId })
+        .from(effectCombinationEffects)
+        .where(eq(effectCombinationEffects.combinationId, id));
+      const had = new Set(before.map((r) => r.effectId));
+      // Archived effects stay only where they were already used.
+      if (found.some((e) => !e.active && !had.has(e.id))) throw new ActionError("A picked effect is archived in the library.");
+      const [row] = await tx
+        .update(effectCombinations)
+        .set(values)
+        .where(and(eq(effectCombinations.id, id), eq(effectCombinations.finishId, input.finishId)))
+        .returning({ id: effectCombinations.id });
+      if (!row) throw new ActionError("That effect combination no longer exists.");
+      await tx.delete(effectCombinationEffects).where(eq(effectCombinationEffects.combinationId, id));
+    } else {
+      if (found.some((e) => !e.active)) throw new ActionError("A picked effect is archived in the library.");
+      const [{ top }] = await tx
+        .select({ top: max(effectCombinations.sort) })
+        .from(effectCombinations)
+        .where(eq(effectCombinations.finishId, input.finishId));
+      const [row] = await tx
+        .insert(effectCombinations)
+        .values({ ...values, finishId: input.finishId, sort: (top ?? -1) + 1 })
+        .returning({ id: effectCombinations.id });
+      id = row.id;
+    }
+    await tx.insert(effectCombinationEffects).values(input.effects.map((e) => ({ combinationId: id, ...e })));
+  });
+  changed("finishes");
+});
+
+export const reorderEffectCombinations = adminAction(reorderInSchema, async ({ parentId, ids }) => {
+  await db.transaction(async (tx) => {
+    for (const [i, id] of ids.entries())
+      await tx
+        .update(effectCombinations)
+        .set({ sort: i })
+        .where(and(eq(effectCombinations.id, id), eq(effectCombinations.finishId, parentId)));
+  });
+  changed("finishes");
+});
+
+/** Hard delete only when no cart line holds the combination. */
+export const deleteEffectCombination = adminAction(idSchema, async ({ id }) => {
+  const used = await db.$count(cartItems, eq(cartItems.effectCombinationId, id));
+  if (used > 0) throw new ActionError("Carts hold this effect combination, so it can only be archived (switch Active off).");
+  await db.delete(effectCombinations).where(eq(effectCombinations.id, id));
+  changed("finishes");
+});
+
+export const setEffectCombinationActive = adminAction(
+  idSchema.extend({ active: finishSaveSchema.shape.active }),
+  async ({ id, active }) => {
+    await db.update(effectCombinations).set({ active }).where(eq(effectCombinations.id, id));
+    changed("finishes");
+  },
+);
 
 // ---------- Colourways ----------
 

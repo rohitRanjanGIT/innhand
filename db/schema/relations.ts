@@ -5,7 +5,9 @@ import {
   colourwayColours,
   colours,
   finishColourSlots,
-  finishEffectOptions,
+  effectCombinationEffects,
+  effectCombinations,
+  effects,
   finishEffectSlots,
   finishes,
 } from "./finishes";
@@ -22,7 +24,7 @@ import {
 } from "./catalogue";
 import { navGroups, navLinks, navSections } from "./nav";
 import { comboImages, comboItems, combos } from "./combos";
-import { addresses, cartBundles, cartItemEffects, cartItems, carts, wishlistItems } from "./cart";
+import { addresses, cartBundles, cartItems, carts, wishlistItems } from "./cart";
 
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
@@ -39,17 +41,29 @@ export const accountRelations = relations(account, ({ one }) => ({
 export const finishRelations = relations(finishes, ({ many }) => ({
   colourSlots: many(finishColourSlots),
   effectSlots: many(finishEffectSlots),
+  effectCombinations: many(effectCombinations),
   colourways: many(colourways),
 }));
 export const finishColourSlotRelations = relations(finishColourSlots, ({ one }) => ({
   finish: one(finishes, { fields: [finishColourSlots.finishId], references: [finishes.id] }),
 }));
-export const finishEffectSlotRelations = relations(finishEffectSlots, ({ one, many }) => ({
-  finish: one(finishes, { fields: [finishEffectSlots.finishId], references: [finishes.id] }),
-  options: many(finishEffectOptions),
+export const effectRelations = relations(effects, ({ one }) => ({
+  image: one(media, { fields: [effects.imageId], references: [media.id] }),
 }));
-export const finishEffectOptionRelations = relations(finishEffectOptions, ({ one }) => ({
-  slot: one(finishEffectSlots, { fields: [finishEffectOptions.slotId], references: [finishEffectSlots.id] }),
+export const finishEffectSlotRelations = relations(finishEffectSlots, ({ one }) => ({
+  finish: one(finishes, { fields: [finishEffectSlots.finishId], references: [finishes.id] }),
+}));
+export const effectCombinationRelations = relations(effectCombinations, ({ one, many }) => ({
+  finish: one(finishes, { fields: [effectCombinations.finishId], references: [finishes.id] }),
+  effects: many(effectCombinationEffects),
+}));
+export const effectCombinationEffectRelations = relations(effectCombinationEffects, ({ one }) => ({
+  combination: one(effectCombinations, {
+    fields: [effectCombinationEffects.combinationId],
+    references: [effectCombinations.id],
+  }),
+  slot: one(finishEffectSlots, { fields: [effectCombinationEffects.slotId], references: [finishEffectSlots.id] }),
+  effect: one(effects, { fields: [effectCombinationEffects.effectId], references: [effects.id] }),
 }));
 export const colourwayRelations = relations(colourways, ({ one, many }) => ({
   finish: one(finishes, { fields: [colourways.finishId], references: [finishes.id] }),
@@ -155,13 +169,9 @@ export const cartItemRelations = relations(cartItems, ({ one, many }) => ({
   bundle: one(cartBundles, { fields: [cartItems.bundleId], references: [cartBundles.id] }),
   variant: one(productVariants, { fields: [cartItems.variantId], references: [productVariants.id] }),
   colourway: one(colourways, { fields: [cartItems.colourwayId], references: [colourways.id] }),
-  effects: many(cartItemEffects),
-}));
-export const cartItemEffectRelations = relations(cartItemEffects, ({ one }) => ({
-  item: one(cartItems, { fields: [cartItemEffects.cartItemId], references: [cartItems.id] }),
-  option: one(finishEffectOptions, {
-    fields: [cartItemEffects.effectOptionId],
-    references: [finishEffectOptions.id],
+  effectCombination: one(effectCombinations, {
+    fields: [cartItems.effectCombinationId],
+    references: [effectCombinations.id],
   }),
 }));
 export const wishlistRelations = relations(wishlistItems, ({ one }) => ({

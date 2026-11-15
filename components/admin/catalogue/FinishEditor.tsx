@@ -7,20 +7,18 @@ import { saveFinish } from "@/lib/admin/finishes";
 import type { FinishEditorData } from "@/lib/admin/queries/finishes";
 import { fieldErrorsOf, finishSaveSchema, type FinishSaveInput } from "@/lib/admin/schemas/catalogue";
 import { slugify } from "@/lib/utils";
-import { DragHandle, SortableList } from "@/components/admin/SortableList";
 import { Badge } from "@/components/admin/ui/badge";
 import { Button } from "@/components/admin/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/admin/ui/card";
-import { Checkbox } from "@/components/admin/ui/checkbox";
 import { Input } from "@/components/admin/ui/input";
 import { Switch } from "@/components/admin/ui/switch";
 import { Textarea } from "@/components/admin/ui/textarea";
 import ColourwaysManager from "./ColourwaysManager";
+import EffectCombinationsManager from "./EffectCombinationsManager";
+import EffectSlotsCard, { type EffectSlotState } from "./EffectSlotsCard";
 import { Field, FieldError, SavingIcon, firstErrors, useActionRunner } from "./shared";
 
 // Local form state. `key` is a stable React/drag key; `id` is the saved row's id (absent when new).
-type Opt = { key: string; id?: string; name: string; extraPrice: string; active: boolean; inCarts: boolean };
-type EffectSlot = { key: string; id?: string; label: string; required: boolean; options: Opt[] };
 type ColourSlot = { key: string; id?: string; label: string };
 type State = {
   name: string;
@@ -28,7 +26,7 @@ type State = {
   description: string;
   active: boolean;
   colourSlots: ColourSlot[];
-  effectSlots: EffectSlot[];
+  effectSlots: EffectSlotState[];
 };
 
 let tmp = 0;
@@ -41,13 +39,7 @@ function fromData(f: FinishEditorData["finish"]): State {
     description: f.description,
     active: f.active,
     colourSlots: f.colourSlots.map((s) => ({ key: s.id, id: s.id, label: s.label })),
-    effectSlots: f.effectSlots.map((s) => ({
-      key: s.id,
-      id: s.id,
-      label: s.label,
-      required: s.required,
-      options: s.options.map((o) => ({ key: o.id, ...o, extraPrice: String(o.extraPrice) })),
-    })),
+    effectSlots: f.effectSlots.map((s) => ({ key: s.id, id: s.id, label: s.label })),
   };
 }
 
@@ -59,17 +51,7 @@ function toInput(id: string, s: State): FinishSaveInput {
     description: s.description,
     active: s.active,
     colourSlots: s.colourSlots.map(({ id, label }) => ({ id, label })),
-    effectSlots: s.effectSlots.map(({ id, label, required, options }) => ({
-      id,
-      label,
-      required,
-      options: options.map(({ id, name, extraPrice, active }) => ({
-        id,
-        name,
-        extraPrice: extraPrice.trim() === "" ? 0 : Number(extraPrice),
-        active,
-      })),
-    })),
+    effectSlots: s.effectSlots.map(({ id, label }) => ({ id, label })),
   };
 }
 
@@ -91,10 +73,6 @@ export default function FinishEditor({ data }: { data: FinishEditorData }) {
   const update = (patch: Partial<State>) => setState((s) => ({ ...s, ...patch }));
   const setColourSlot = (i: number, label: string) =>
     update({ colourSlots: state.colourSlots.map((s, j) => (j === i ? { ...s, label } : s)) });
-  const setEffect = (i: number, patch: Partial<EffectSlot>) =>
-    update({ effectSlots: state.effectSlots.map((s, j) => (j === i ? { ...s, ...patch } : s)) });
-  const setOption = (i: number, k: number, patch: Partial<Opt>) =>
-    setEffect(i, { options: state.effectSlots[i].options.map((o, j) => (j === k ? { ...o, ...patch } : o)) });
 
   function save(e: React.FormEvent) {
     e.preventDefault();
@@ -215,159 +193,13 @@ export default function FinishEditor({ data }: { data: FinishEditorData }) {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Effects</CardTitle>
-            <CardDescription>
-              The shopper picks one option of each effect (&quot;Flakes&quot;: None, Gold leaf…). Extra price is in
-              rupees per piece. Up to {sec} effect{sec === 1 ? "" : "s"} (
-              <Link href="/admin/settings" className="underline underline-offset-4">
-                SEC
-              </Link>
-              ).
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            {state.effectSlots.length === 0 && <p className="text-sm text-muted-foreground">No effects on this finish.</p>}
-            {state.effectSlots.map((slot, i) => {
-              const locked = slot.options.some((o) => o.inCarts);
-              return (
-                <div key={slot.key} className="grid gap-3 rounded-lg border p-3">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <Input
-                      aria-label="Effect label"
-                      placeholder="e.g. Flakes"
-                      value={slot.label}
-                      onChange={(e) => setEffect(i, { label: e.target.value })}
-                      className="max-w-xs"
-                    />
-                    <label className="flex items-center gap-2 text-sm">
-                      <Checkbox checked={slot.required} onCheckedChange={(v) => setEffect(i, { required: v === true })} />
-                      Shopper must pick one
-                    </label>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="ml-auto"
-                      disabled={locked}
-                      title={locked ? "Options of this effect are in shoppers' carts" : undefined}
-                      onClick={() => update({ effectSlots: state.effectSlots.filter((_, j) => j !== i) })}
-                    >
-                      <Trash2 /> Remove effect
-                    </Button>
-                  </div>
-                  <FieldError message={errors[`effectSlots.${i}.label`]} />
-
-                  {slot.options.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No options yet.</p>
-                  ) : (
-                    <SortableList
-                      items={slot.options.map((o) => ({ ...o, id: o.key }))}
-                      onReorder={(keys) =>
-                        setEffect(i, { options: keys.map((k) => slot.options.find((o) => o.key === k)!) })
-                      }
-                      renderItem={(o, handle, { index: k }) => (
-                        <div className="grid gap-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <DragHandle {...handle} />
-                            <Input
-                              aria-label="Option name"
-                              placeholder="e.g. Gold leaf"
-                              value={o.name}
-                              onChange={(e) => setOption(i, k, { name: e.target.value })}
-                              className="max-w-56"
-                            />
-                            <div className="flex items-center gap-1">
-                              <span className="text-sm text-muted-foreground">+₹</span>
-                              <Input
-                                aria-label="Extra price in rupees"
-                                type="number"
-                                inputMode="numeric"
-                                min={0}
-                                value={o.extraPrice}
-                                onChange={(e) => setOption(i, k, { extraPrice: e.target.value })}
-                                className="w-24"
-                              />
-                            </div>
-                            <label className="flex items-center gap-2 text-sm">
-                              <Switch checked={o.active} onCheckedChange={(active) => setOption(i, k, { active })} />
-                              Active
-                            </label>
-                            {o.inCarts ? (
-                              <Badge variant="outline" title="In shoppers' carts: archive it instead of removing">
-                                In carts
-                              </Badge>
-                            ) : (
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon-sm"
-                                aria-label={`Remove ${o.name || "option"}`}
-                                onClick={() => setEffect(i, { options: slot.options.filter((_, j) => j !== k) })}
-                              >
-                                <Trash2 />
-                              </Button>
-                            )}
-                          </div>
-                          <FieldError
-                            message={
-                              errors[`effectSlots.${i}.options.${k}.name`] ??
-                              errors[`effectSlots.${i}.options.${k}.extraPrice`]
-                            }
-                          />
-                        </div>
-                      )}
-                    />
-                  )}
-                  <div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        setEffect(i, {
-                          options: [
-                            ...slot.options,
-                            { key: newKey(), name: "", extraPrice: "0", active: true, inCarts: false },
-                          ],
-                        })
-                      }
-                    >
-                      <Plus /> Add option
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-            <div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={state.effectSlots.length >= sec}
-                onClick={() =>
-                  update({
-                    effectSlots: [
-                      ...state.effectSlots,
-                      {
-                        key: newKey(),
-                        label: "",
-                        required: false,
-                        options: [{ key: newKey(), name: "None", extraPrice: "0", active: true, inCarts: false }],
-                      },
-                    ],
-                  })
-                }
-              >
-                <Plus /> Add effect
-              </Button>
-              {state.effectSlots.length >= sec && (
-                <span className="ml-3 text-xs text-muted-foreground">Limit of {sec} reached.</span>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        <EffectSlotsCard
+          slots={state.effectSlots}
+          onChange={(effectSlots) => update({ effectSlots })}
+          sec={sec}
+          errors={errors}
+          newKey={newKey}
+        />
 
         <div className="sticky bottom-0 z-10 -mx-1 flex items-center gap-3 border-t bg-background/95 px-1 py-3 backdrop-blur">
           <Button type="submit" disabled={pending || !dirty}>
@@ -393,6 +225,14 @@ export default function FinishEditor({ data }: { data: FinishEditorData }) {
         palette={data.palette}
         colourways={data.colourways}
         blocked={dirty ? "Save the finish first: colourways use the saved colour slots." : null}
+      />
+
+      <EffectCombinationsManager
+        finishId={finish.id}
+        slots={finish.effectSlots}
+        library={data.library}
+        combinations={data.effectCombinations}
+        blocked={dirty ? "Save the finish first: effect combinations use the saved effect slots." : null}
       />
     </div>
   );

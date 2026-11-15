@@ -17,7 +17,7 @@ const describe = (l: CartLineView) =>
   [
     l.colourway?.name,
     l.finish,
-    ...l.effects.filter((e) => e.option.toLowerCase() !== "none").map((e) => e.option),
+    ...l.effects,
     l.soldInSets || l.setSize > 1 ? `set of ${l.setSize}` : null,
   ]
     .filter(Boolean)

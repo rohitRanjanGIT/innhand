@@ -66,7 +66,7 @@ export default function SettingsForm({ initial }: { initial: Values }) {
           <Field label="Secondary colours per finish (SCC)" htmlFor="secondaryColourCount" error={errors.secondaryColourCount}>
             <Input {...num("secondaryColourCount")} min={0} max={6} />
           </Field>
-          <Field label="Effects per finish (SEC)" htmlFor="effectCount" error={errors.effectCount}>
+          <Field label="Effect slots per finish (SEC)" htmlFor="effectCount" error={errors.effectCount}>
             <Input {...num("effectCount")} min={0} max={6} />
           </Field>
         </CardContent>

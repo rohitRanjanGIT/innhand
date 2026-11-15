@@ -5,7 +5,7 @@ import Categories from "@/components/home/Categories";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 import StoryTeaser from "@/components/home/StoryTeaser";
 import WhyJesmonite from "@/components/home/WhyJesmonite";
-import Reviews from "@/components/home/Reviews";
+import Reviews, { hasReviews } from "@/components/home/Reviews";
 import CustomOrders from "@/components/home/CustomOrders";
 import { getFeaturedProducts, getProductTiles } from "@/lib/data/catalogue";
 import { getHomeContent } from "@/lib/data/home";
@@ -33,7 +33,7 @@ export default async function HomePage() {
       <StoryTeaser section={home.story} />
       <WhyJesmonite />
       <Reviews section={home.reviews} />
-      <CustomOrders />
+      <CustomOrders spaced={!hasReviews(home.reviews)} />
     </main>
   );
 }

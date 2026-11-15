@@ -2,9 +2,9 @@
 // discount a bundle gets (pricing rule 9). No database here, so lib/cart/rules.test.ts covers it.
 import { remainingAllowance, type Discount } from "../pricing";
 
-/** Two lines match when they are the same variant, colourway and set of effect options. */
-export function lineKey(variantId: string, colourwayId: string | null, effectOptionIds: string[]) {
-  return `${variantId}|${colourwayId ?? "-"}|${[...new Set(effectOptionIds)].sort().join(",")}`;
+/** Two lines match when they are the same variant, colourway and effect combination (as 0 or 1 ids). */
+export function lineKey(variantId: string, colourwayId: string | null, effectIds: string[]) {
+  return `${variantId}|${colourwayId ?? "-"}|${[...new Set(effectIds)].sort().join(",")}`;
 }
 
 /** Two bundles match when they are the same kind/combo with the same pieces, in any order. */
@@ -129,22 +129,10 @@ export function bundleDiscount(b: BundleDiscountInput): { discount: Discount | n
 }
 
 /**
- * Effect choices for a finish: at most one option per slot, every option must belong to one of the
- * finish's slots, and required slots must be filled. Returns an error message or null.
+ * The effect combination chosen for a piece: none, or one the finish offers right now (active, with
+ * every effect active in the library). Never required. Returns an error message or null.
  */
-export function checkEffects(
-  slots: { id: string; label: string; required: boolean; optionIds: string[] }[],
-  chosen: string[],
-): string | null {
-  const unique = [...new Set(chosen)];
-  const slotOf = new Map(slots.flatMap((s) => s.optionIds.map((o) => [o, s.id] as const)));
-  const used = new Set<string>();
-  for (const o of unique) {
-    const s = slotOf.get(o);
-    if (!s) return "That option is no longer available. Please choose again.";
-    if (used.has(s)) return "Choose one option for each effect.";
-    used.add(s);
-  }
-  const missing = slots.find((s) => s.required && s.optionIds.length > 0 && !used.has(s.id));
-  return missing ? `Choose a ${missing.label.toLowerCase()} option.` : null;
+export function checkEffectCombination(offered: string[], chosen: string | null): string | null {
+  if (chosen === null) return null;
+  return offered.includes(chosen) ? null : "That effect is no longer available. Please choose again.";
 }

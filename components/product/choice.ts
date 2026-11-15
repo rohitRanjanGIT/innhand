@@ -2,37 +2,25 @@
 // Pure functions, shared by the product page's client components.
 import { unitPrice } from "@/lib/pricing";
 import type { LineChoice } from "@/lib/cart/contract";
-import type { ProductDetail, ProductEffectSlot, ProductFinishOption, ProductImage } from "@/lib/data/types";
+import type { ProductDetail, ProductFinishOption, ProductImage } from "@/lib/data/types";
 
 export type Choice = {
   productFinishId: string | null;
   colourwayId: string | null;
-  /** Effect slot id → option id (null = none, only for optional slots). */
-  effects: Record<string, string | null>;
+  /** The chosen effect combination of the finish (null = None). */
+  effectCombinationId: string | null;
   setSize: number;
   qty: number;
 };
 
-/** Required slots start on their first option; optional ones on a free option ("None") if any. */
-export function defaultEffect(slot: ProductEffectSlot): string | null {
-  if (slot.options.length === 0) return null;
-  if (slot.required) return slot.options[0].id;
-  return slot.options.find((o) => o.extraPrice === 0)?.id ?? null;
-}
-
-/** An optional slot with no free option of its own gets a "None" choice. */
-export function needsNone(slot: ProductEffectSlot) {
-  return !slot.required && !slot.options.some((o) => o.extraPrice === 0);
-}
-
 function forFinish(f: ProductFinishOption | undefined, prev?: Choice): Omit<Choice, "qty"> {
-  if (!f) return { productFinishId: null, colourwayId: null, effects: {}, setSize: 1 };
+  if (!f) return { productFinishId: null, colourwayId: null, effectCombinationId: null, setSize: 1 };
   // Keep the set size when the new finish has it; colourways and effects belong to the finish.
   const sizes = f.variants.map((v) => v.setSize);
   return {
     productFinishId: f.productFinishId,
     colourwayId: f.colourways[0]?.id ?? null,
-    effects: Object.fromEntries(f.effectSlots.map((s) => [s.id, defaultEffect(s)])),
+    effectCombinationId: null,
     setSize: prev && sizes.includes(prev.setSize) ? prev.setSize : (sizes[0] ?? 1),
   };
 }
@@ -49,14 +37,11 @@ export function resolveChoice(p: ProductDetail, c: Choice) {
   const finish = p.finishes.find((f) => f.productFinishId === c.productFinishId);
   const variant = finish?.variants.find((v) => v.setSize === c.setSize) ?? finish?.variants[0];
   const colourway = finish?.colourways.find((cw) => cw.id === c.colourwayId) ?? null;
-  const effects = (finish?.effectSlots ?? []).flatMap((s) => {
-    const o = s.options.find((x) => x.id === c.effects[s.id]);
-    return o ? [{ slot: s, option: o }] : [];
-  });
+  const effect = finish?.effectOptions.find((o) => o.id === c.effectCombinationId) ?? null;
   const unit = variant
-    ? unitPrice({ variantPrice: variant.price, effectExtras: effects.map((e) => e.option.extraPrice), setSize: variant.setSize })
+    ? unitPrice({ variantPrice: variant.price, effectExtras: effect ? [effect.price] : [], setSize: variant.setSize })
     : null;
-  return { finish, variant, colourway, effects, unit };
+  return { finish, variant, colourway, effect, unit };
 }
 
 /** The photos for a finish and colourway: those linked to the colourway first, then the general ones. */
@@ -72,23 +57,23 @@ export function imagesFor(p: ProductDetail, finish: ProductFinishOption | undefi
 }
 
 export function toLineChoice(p: ProductDetail, c: Choice): LineChoice | null {
-  const { variant, effects } = resolveChoice(p, c);
+  const { variant, effect } = resolveChoice(p, c);
   if (!variant) return null;
   return {
     variantId: variant.id,
     colourwayId: c.colourwayId,
-    effectOptionIds: effects.map((e) => e.option.id),
+    effectCombinationId: effect?.id ?? null,
     qty: c.qty,
   };
 }
 
 /** "Marble · Blush + Ivory swirl · Gold leaf · Set of 4", for messages. */
 export function describeChoice(p: ProductDetail, c: Choice) {
-  const { finish, variant, colourway, effects } = resolveChoice(p, c);
+  const { finish, variant, colourway, effect } = resolveChoice(p, c);
   return [
     finish?.name,
     colourway?.name,
-    ...effects.filter((e) => e.option.extraPrice > 0 || e.slot.required).map((e) => e.option.name),
+    effect?.name,
     variant && (p.soldInSets || variant.setSize > 1) ? `Set of ${variant.setSize}` : null,
   ]
     .filter(Boolean)

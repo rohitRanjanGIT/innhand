@@ -48,7 +48,7 @@ const groups = [
       { href: "/admin/products", label: "Products", icon: Package },
       { href: "/admin/combos", label: "Combos", icon: Layers },
       { href: "/admin/finishes", label: "Finishes", icon: Brush },
-      { href: "/admin/colours", label: "Colours", icon: Palette },
+      { href: "/admin/colours", label: "Colours / Effects", icon: Palette },
     ],
   },
   {

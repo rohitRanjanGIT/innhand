@@ -12,8 +12,6 @@ export type AdminComboProduct = {
     isDefault: boolean;
     /** False when the product finish or the finish itself is switched off. */
     active: boolean;
-    /** Per-piece extra of the options a shopper starts on (required effect slots). */
-    defaultExtra: number;
     variants: { setSize: number; price: number | null; active: boolean }[];
   }[];
 };
@@ -33,7 +31,8 @@ export function adminPiecePrice(
   const v = f.variants.find((x) => x.setSize === item.setSize);
   if (!v || !v.active || v.price === null)
     return { price: null, reason: `${product.name}: ${f.name} × ${item.setSize} has no price` };
-  return { price: v.price + f.defaultExtra * item.setSize };
+  // Effects are optional extras, so a piece at its defaults has none.
+  return { price: v.price };
 }
 
 /** Pieces total, saving and combo price at the defaults; `hidden` lists why the shop would hide it. */

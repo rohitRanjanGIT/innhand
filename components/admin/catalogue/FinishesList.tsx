@@ -60,7 +60,7 @@ export default function FinishesList({ finishes, scc, sec }: { finishes: AdminFi
                   {!f.active && <Badge variant="secondary">Archived</Badge>}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {1 + f.secondarySlots} colour slot{f.secondarySlots === 0 ? "" : "s"} · {f.effectSlots} effect
+                  {1 + f.secondarySlots} colour slot{f.secondarySlots === 0 ? "" : "s"} · {f.effectSlots} effect slot
                   {f.effectSlots === 1 ? "" : "s"} · {f.colourways} colourway{f.colourways === 1 ? "" : "s"} ·{" "}
                   {f.products} product{f.products === 1 ? "" : "s"}
                 </div>

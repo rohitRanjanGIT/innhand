@@ -9,14 +9,14 @@ export default function ItemSpec({
 }: {
   colourway: { name: string; swatches: { name: string; hex: string }[] } | null;
   finish: string;
-  effects?: { slot: string; option: string }[];
+  effects?: string[];
   /** Shown when the piece is sold in sets. */
   setSize?: number | null;
 }) {
   const parts = [
     colourway?.name,
     finish,
-    ...effects.filter((e) => e.option.toLowerCase() !== "none").map((e) => e.option),
+    ...effects,
     setSize ? `Set of ${setSize}` : null,
   ].filter(Boolean);
   return (

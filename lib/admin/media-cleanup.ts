@@ -4,6 +4,7 @@ import { db } from "@/db";
 import {
   categories,
   comboImages,
+  effects,
   homeSections,
   media,
   productFinishImages,
@@ -17,7 +18,7 @@ import { deleteImageFiles, r2Configured } from "@/lib/r2";
 
 /**
  * Deletes media rows (and their R2 files) that nothing references any more. Call after removing an
- * image from a product, combo, category or tag.
+ * image from a product, combo, category, tag or effect.
  */
 export async function deleteOrphanMedia(ids: string[]) {
   if (ids.length === 0) return;
@@ -30,6 +31,7 @@ export async function deleteOrphanMedia(ids: string[]) {
         and not exists (select 1 from ${comboImages} where ${comboImages.mediaId} = ${media.id})
         and not exists (select 1 from ${categories} where ${categories.imageId} = ${media.id})
         and not exists (select 1 from ${tags} where ${tags.imageId} = ${media.id})
+        and not exists (select 1 from ${effects} where ${effects.imageId} = ${media.id})
         and not exists (select 1 from ${homeSections} where ${homeSections.imageId} = ${media.id})
         and not exists (select 1 from ${reviews} where ${reviews.imageId} = ${media.id})
         and not exists (select 1 from ${socialPosts} where ${socialPosts.imageId} = ${media.id})`,

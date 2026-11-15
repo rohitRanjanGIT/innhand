@@ -1,5 +1,6 @@
 import { boolean, integer, pgTable, text, unique, uuid } from "drizzle-orm/pg-core";
 import { base, sort } from "./_shared";
+import { media } from "./catalogue";
 
 export const colours = pgTable("colours", {
   ...base,
@@ -32,6 +33,16 @@ export const finishColourSlots = pgTable(
   (t) => [unique("finish_colour_slot_position").on(t.finishId, t.position)],
 );
 
+/** The effects library ("Gold leaf"): a name and a picture. Prices live on each finish. */
+export const effects = pgTable("effects", {
+  ...base,
+  name: text("name").notNull(),
+  imageId: uuid("image_id").references(() => media.id, { onDelete: "set null" }),
+  sort: sort(),
+  active: boolean("active").notNull().default(true),
+});
+
+/** Up to SEC named effect slots per finish ("Flakes", "Rim"). The shopper picks one effect per slot, or none. */
 export const finishEffectSlots = pgTable(
   "finish_effect_slots",
   {
@@ -41,22 +52,9 @@ export const finishEffectSlots = pgTable(
       .references(() => finishes.id, { onDelete: "cascade" }),
     position: integer("position").notNull(),
     label: text("label").notNull(),
-    required: boolean("required").notNull().default(false),
   },
   (t) => [unique("finish_effect_slot_position").on(t.finishId, t.position)],
 );
-
-export const finishEffectOptions = pgTable("finish_effect_options", {
-  ...base,
-  slotId: uuid("slot_id")
-    .notNull()
-    .references(() => finishEffectSlots.id, { onDelete: "cascade" }),
-  name: text("name").notNull(),
-  /** Rupees added per piece. */
-  extraPrice: integer("extra_price").notNull().default(0),
-  sort: sort(),
-  active: boolean("active").notNull().default(true),
-});
 
 export const colourways = pgTable("colourways", {
   ...base,
@@ -84,3 +82,36 @@ export const colourwayColours = pgTable(
   },
   (t) => [unique("colourway_slot").on(t.colourwayId, t.slotId)],
 );
+
+/** Like a colourway: a named set with one library effect per effect slot, priced on the finish. */
+export const effectCombinations = pgTable("effect_combinations", {
+  ...base,
+  finishId: uuid("finish_id")
+    .notNull()
+    .references(() => finishes.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  /** Whole rupees added per piece. */
+  sellingPrice: integer("selling_price").notNull().default(0),
+  /** Admin-only. Never selected by storefront reads. */
+  costPrice: integer("cost_price"),
+  sort: sort(),
+  active: boolean("active").notNull().default(true),
+});
+
+export const effectCombinationEffects = pgTable(
+  "effect_combination_effects",
+  {
+    ...base,
+    combinationId: uuid("combination_id")
+      .notNull()
+      .references(() => effectCombinations.id, { onDelete: "cascade" }),
+    slotId: uuid("slot_id")
+      .notNull()
+      .references(() => finishEffectSlots.id, { onDelete: "cascade" }),
+    effectId: uuid("effect_id")
+      .notNull()
+      .references(() => effects.id, { onDelete: "restrict" }),
+  },
+  (t) => [unique("effect_combination_slot").on(t.combinationId, t.slotId)],
+);
+

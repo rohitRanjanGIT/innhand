@@ -9,8 +9,6 @@ import {
   comboImages,
   comboItems,
   combos,
-  finishEffectOptions,
-  finishEffectSlots,
   finishes,
   media,
   productFinishes,
@@ -45,49 +43,19 @@ export async function loadComboProductsInner(extraIds: string[] = []): Promise<A
     .where(inArray(productFinishes.productId, ids))
     .orderBy(asc(productFinishes.sort), asc(finishes.sort));
   const pfIds = pfRows.map((r) => r.id);
-  const finishIds = [...new Set(pfRows.map((r) => r.finishId))];
 
-  const [variantRows, requiredRows] = await Promise.all([
-    pfIds.length
-      ? db
-          .select({
-            productFinishId: productVariants.productFinishId,
-            setSize: productVariants.setSize,
-            price: productVariants.price,
-            active: productVariants.active,
-          })
-          .from(productVariants)
-          .where(inArray(productVariants.productFinishId, pfIds))
-          .orderBy(asc(productVariants.setSize))
-      : [],
-    finishIds.length
-      ? db
-          .select({
-            finishId: finishEffectSlots.finishId,
-            slotId: finishEffectSlots.id,
-            extraPrice: finishEffectOptions.extraPrice,
-          })
-          .from(finishEffectSlots)
-          .innerJoin(finishEffectOptions, eq(finishEffectOptions.slotId, finishEffectSlots.id))
-          .where(
-            and(
-              inArray(finishEffectSlots.finishId, finishIds),
-              eq(finishEffectSlots.required, true),
-              eq(finishEffectOptions.active, true),
-            ),
-          )
-          .orderBy(asc(finishEffectOptions.sort), asc(finishEffectOptions.name))
-      : [],
-  ]);
-
-  // A required slot starts on its first option (same rule as the storefront configurator).
-  const defaultExtraByFinish = new Map<string, number>();
-  const seenSlots = new Set<string>();
-  for (const r of requiredRows) {
-    if (seenSlots.has(r.slotId)) continue;
-    seenSlots.add(r.slotId);
-    defaultExtraByFinish.set(r.finishId, (defaultExtraByFinish.get(r.finishId) ?? 0) + r.extraPrice);
-  }
+  const variantRows = pfIds.length
+    ? await db
+        .select({
+          productFinishId: productVariants.productFinishId,
+          setSize: productVariants.setSize,
+          price: productVariants.price,
+          active: productVariants.active,
+        })
+        .from(productVariants)
+        .where(inArray(productVariants.productFinishId, pfIds))
+        .orderBy(asc(productVariants.setSize))
+    : [];
 
   return prodRows.map((p) => ({
     ...p,
@@ -98,7 +66,6 @@ export async function loadComboProductsInner(extraIds: string[] = []): Promise<A
         name: pf.name,
         isDefault: pf.isDefault,
         active: pf.pfActive && pf.finishActive,
-        defaultExtra: defaultExtraByFinish.get(pf.finishId) ?? 0,
         variants: variantRows
           .filter((v) => v.productFinishId === pf.id)
           .map(({ setSize, price, active }) => ({ setSize, price, active })),

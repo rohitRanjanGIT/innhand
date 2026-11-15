@@ -17,16 +17,15 @@ const FINISHES = [
   { name: "Matte", slug: "matte", description: "One smooth, solid colour.", second: null },
 ] as const;
 
-/** Sample effect so the effect picker has something to show. Edit or remove it in the admin. */
-const SAMPLE_EFFECT = {
-  label: "Flakes",
+/** Sample effects so the effect picker has something to show. Edit or remove them in the admin. */
+const SAMPLE_EFFECTS = {
   finishes: ["marble", "terrazzo"],
-  options: [
-    { name: "None", extraPrice: 0 },
-    { name: "Gold leaf", extraPrice: 50 },
-    { name: "Silver leaf", extraPrice: 50 },
+  slot: "Flakes",
+  effects: [
+    { name: "Gold leaf", image: "/assets/effects/gold-leaf.svg", sellingPrice: 50, costPrice: 15 },
+    { name: "Silver leaf", image: "/assets/effects/silver-leaf.svg", sellingPrice: 50, costPrice: 12 },
   ],
-};
+} as const;
 
 const TAGS = [
   {
@@ -66,12 +65,12 @@ async function main() {
   await db.transaction(async (tx) => {
     if (reset) {
       await tx.execute(sql`truncate table
-        cart_item_effects, cart_items, cart_bundles, carts, wishlist_items,
+        cart_items, cart_bundles, carts, wishlist_items,
         combo_images, combo_items, combos, combo_discount_tiers,
         nav_links, nav_groups, nav_sections,
         product_related, product_variants, product_finish_images, product_finishes, product_tags, products,
         tags, categories, media,
-        colourway_colours, colourways, finish_effect_options, finish_effect_slots, finish_colour_slots, finishes,
+        colourway_colours, colourways, effect_combination_effects, effect_combinations, finish_effect_slots, effects, finish_colour_slots, finishes,
         colours, store_settings cascade`);
     }
 
@@ -84,7 +83,18 @@ async function main() {
       .returning();
     const colourId = (name: string) => colourRows.find((c) => c.name === name)!.id;
 
-    // Finishes, slots, colourways, sample effect
+    // Effects library (sample images are local SVGs, like the other seeded photos)
+    const effectRows = [];
+    for (const [i, e] of SAMPLE_EFFECTS.effects.entries()) {
+      const [m] = await tx
+        .insert(s.media)
+        .values({ r2Key: `local:${e.image}`, width: 200, height: 200, processed: true, alt: e.name })
+        .returning();
+      const [row] = await tx.insert(s.effects).values({ name: e.name, imageId: m.id, sort: i }).returning();
+      effectRows.push({ ...e, id: row.id });
+    }
+
+    // Finishes, slots, colourways, a "Flakes" effect slot and sample effect combinations
     const finishRows: Record<string, string> = {};
     for (const [i, f] of FINISHES.entries()) {
       const [row] = await tx
@@ -109,14 +119,19 @@ async function main() {
           ...(secondSlot ? [{ colourwayId: cw.id, slotId: secondSlot.id, colourId: colourId(accent) }] : []),
         ]);
       }
-      if ((SAMPLE_EFFECT.finishes as readonly string[]).includes(f.slug)) {
+      if ((SAMPLE_EFFECTS.finishes as readonly string[]).includes(f.slug)) {
         const [slot] = await tx
           .insert(s.finishEffectSlots)
-          .values({ finishId: row.id, position: 0, label: SAMPLE_EFFECT.label, required: false })
+          .values({ finishId: row.id, position: 0, label: SAMPLE_EFFECTS.slot })
           .returning();
-        await tx
-          .insert(s.finishEffectOptions)
-          .values(SAMPLE_EFFECT.options.map((o, oi) => ({ slotId: slot.id, ...o, sort: oi })));
+        // One effect combination per sample effect (like colourways), priced on the combination.
+        for (const [ei, e] of effectRows.entries()) {
+          const [combo] = await tx
+            .insert(s.effectCombinations)
+            .values({ finishId: row.id, name: e.name, sellingPrice: e.sellingPrice, costPrice: e.costPrice, sort: ei })
+            .returning();
+          await tx.insert(s.effectCombinationEffects).values({ combinationId: combo.id, slotId: slot.id, effectId: e.id });
+        }
       }
     }
 

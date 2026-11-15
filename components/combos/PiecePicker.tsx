@@ -6,20 +6,19 @@ import type { ReactNode } from "react";
 import { formatPrice, unitPrice } from "@/lib/pricing";
 import {
   choiceForFinish,
-  defaultEffects,
   finishOf,
-  needsNoneChoice,
   pieceImage,
   pricedLine,
   swatchBackground,
   type PieceChoice,
   type PieceProduct,
 } from "./model";
+import EffectPicker from "@/components/product/EffectPicker";
 import styles from "./Combos.module.css";
 
 const setLabel = (n: number) => (n === 1 ? "Single" : `Set of ${n}`);
 
-/** One piece of a combo: finish, colourway, effects and set size, with its own price. */
+/** One piece of a combo: finish, colourway, effect and set size, with its own price. */
 export default function PiecePicker({
   id,
   index,
@@ -125,41 +124,15 @@ export default function PiecePicker({
           </fieldset>
         )}
 
-        {finish?.effectSlots.map((slot) => {
-          const current = choice.effects[slot.id] ?? null;
-          const currentName = slot.options.find((o) => o.id === current)?.name ?? "None";
-          const pick = (optionId: string | null) =>
-            onChange({ ...choice, effects: { ...defaultEffects(finish), ...choice.effects, [slot.id]: optionId } });
-          return (
-            <fieldset key={slot.id} className={styles.group}>
-              <legend className={styles.legend}>
-                {slot.label} — <strong>{currentName}</strong>
-              </legend>
-              <div className={styles.choices}>
-                {needsNoneChoice(slot) && (
-                  <label className={styles.choice}>
-                    <input type="radio" name={`${id}-fx-${slot.id}`} checked={current === null} onChange={() => pick(null)} />
-                    <span className={styles.pill}>None</span>
-                  </label>
-                )}
-                {slot.options.map((o) => (
-                  <label key={o.id} className={styles.choice}>
-                    <input
-                      type="radio"
-                      name={`${id}-fx-${slot.id}`}
-                      checked={current === o.id}
-                      onChange={() => pick(o.id)}
-                    />
-                    <span className={styles.pill}>
-                      {o.name}
-                      {o.extraPrice > 0 && <small>+{formatPrice(o.extraPrice)}</small>}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-          );
-        })}
+        {finish && finish.effectOptions.length > 0 && (
+          <EffectPicker
+            options={finish.effectOptions}
+            value={choice.effectCombinationId}
+            perPiece={product.soldInSets}
+            onChange={(effectCombinationId) => onChange({ ...choice, effectCombinationId })}
+            classes={styles}
+          />
+        )}
 
         {finish && finish.variants.length > 1 && (
           <fieldset className={styles.group}>

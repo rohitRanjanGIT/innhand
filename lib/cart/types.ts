@@ -13,7 +13,8 @@ export type CartLineView = {
   setSize: number;
   soldInSets: boolean;
   colourway: { name: string; swatches: { name: string; hex: string }[] } | null;
-  effects: { slot: string; option: string }[];
+  /** The chosen effect combination's name, if any. */
+  effects: string[];
   qty: number;
   /** Null when priced on request or no longer available. */
   unitPrice: number | null;

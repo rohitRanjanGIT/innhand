@@ -33,7 +33,7 @@ export const saveSettings = adminAction(settingsSchema, async (input) => {
     );
   if (tooManyEffects.length)
     problems.push(
-      `Effects can't go below what these finishes use: ${tooManyEffects.map((f) => `${f.name} (${f.n})`).join(", ")}.`,
+      `Effect slots can't go below what these finishes use: ${tooManyEffects.map((f) => `${f.name} (${f.n})`).join(", ")}.`,
     );
   if (problems.length) throw new ActionError(`${problems.join(" ")} Remove those slots first.`);
 

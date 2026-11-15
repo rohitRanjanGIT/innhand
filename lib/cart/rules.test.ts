@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bundleDiscount, bundleKey, checkEffects, lineKey, maxBundleQty, planMerge, productTotals } from "./rules";
+import { bundleDiscount, bundleKey, checkEffectCombination, lineKey, maxBundleQty, planMerge, productTotals } from "./rules";
 
 describe("lineKey", () => {
   it("ignores effect order and duplicates", () => {
@@ -144,18 +144,15 @@ describe("bundleDiscount (rule 9)", () => {
   });
 });
 
-describe("checkEffects", () => {
-  const slots = [
-    { id: "s1", label: "Flakes", required: true, optionIds: ["a", "b"] },
-    { id: "s2", label: "Glitter", required: false, optionIds: ["c"] },
-  ];
-  it("accepts one option per slot", () => {
-    expect(checkEffects(slots, ["a"])).toBeNull();
-    expect(checkEffects(slots, ["b", "c"])).toBeNull();
+describe("checkEffectCombination", () => {
+  const offered = ["goldGlam", "silver"];
+  it("allows no effect, or a combination the finish offers", () => {
+    expect(checkEffectCombination(offered, null)).toBeNull();
+    expect(checkEffectCombination(offered, "silver")).toBeNull();
+    expect(checkEffectCombination([], null)).toBeNull();
   });
-  it("refuses two options from one slot, unknown options and missing required slots", () => {
-    expect(checkEffects(slots, ["a", "b"])).toMatch(/one option/);
-    expect(checkEffects(slots, ["a", "zzz"])).toMatch(/no longer available/);
-    expect(checkEffects(slots, ["c"])).toMatch(/flakes/);
+  it("refuses a combination the finish doesn't offer (archived, effect archived, or another finish's)", () => {
+    expect(checkEffectCombination(offered, "zzz")).toMatch(/no longer available/);
+    expect(checkEffectCombination([], "silver")).toMatch(/no longer available/);
   });
 });

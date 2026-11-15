@@ -47,11 +47,16 @@ export type Swatch = { slotLabel: string; name: string; hex: string };
 
 export type ProductColourway = { id: string; name: string; swatches: Swatch[] };
 
-export type ProductEffectSlot = {
+/**
+ * An effect combination of a finish (like a colourway): one library effect per effect slot, priced as a
+ * whole. `id` is the effect_combinations row; `price` is per piece. Shoppers pick one, or None.
+ */
+export type ProductEffectOption = {
   id: string;
-  label: string;
-  required: boolean;
-  options: { id: string; name: string; extraPrice: number }[];
+  name: string;
+  price: number;
+  /** In slot order: "Flakes: Gold leaf". */
+  effects: { slot: string; name: string; image: string | null }[];
 };
 
 export type ProductVariant = { id: string; setSize: number; price: number | null };
@@ -65,7 +70,8 @@ export type ProductFinishOption = {
   isDefault: boolean;
   images: ProductImage[];
   colourways: ProductColourway[];
-  effectSlots: ProductEffectSlot[];
+  /** Active effect combinations whose effects are all active, in the admin's order. */
+  effectOptions: ProductEffectOption[];
   /** Ordered by set size. */
   variants: ProductVariant[];
 };

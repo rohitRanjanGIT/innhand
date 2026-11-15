@@ -21,9 +21,9 @@ Scope of this phase: admin panel, catalogue, sign-in, cart and wishlist. Checkou
 These are the requirements this plan is built on (your notes plus the answers you gave).
 
 1. **Global finish limits.** One base colour per finish, always. The admin sets how many secondary colours a finish may have (SCC) and how many effects (SEC).
-2. **Finishes.** Matte, Marble, Terrazzo and so on. Each finish has a base colour slot, up to SCC secondary colour slots and up to SEC effect slots. The admin names every slot ("Swirl colour", "Accent colour").
+2. **Finishes.** Matte, Marble, Terrazzo and so on. Each finish has a base colour slot, up to SCC secondary colour slots and up to SEC named effect slots ("Flakes", "Rim"). The admin names every colour slot ("Swirl colour", "Accent colour").
 3. **Colourways.** The admin fills a finish's colour slots to make ready-made colour combinations. The shopper picks a colourway, not single colours.
-4. **Effects.** An effect slot is a list the shopper picks one option from ("Flakes": Gold leaf, Silver leaf, None). An option can add to the price.
+4. **Effects.** A shared library of effects ("Gold leaf"), each with a name and an image, kept on the Colours / Effects page. Effects work like colours: a finish has up to SEC named effect slots, and **effect combinations** (like colourways) pick one library effect per slot, each with its own selling price and admin-only cost price. The shopper picks one combination, or None. See `NNOOOOTTEESSSS/effects-plan.md`.
 5. **Categories.** Two levels: head category (Home Décor) and sub-category (Planters, Vases).
 6. **Navbar.** The admin builds the "By Category" and "By Occasion" menus.
 7. **Products.** Name, description, size details, cart limit, sub-category, tags, hand-picked similar products, and a cost price only the admin sees. The admin chooses which finishes a product has. Each finish of a product has its own images and its own price. A product can be sold in sets (2, 3, 4, 5, 6…), each set size with its own price.
@@ -123,8 +123,10 @@ Lowering SCC or SEC below what an existing finish uses is refused, with a list o
 | `colours` | name, hex, sort, active | The palette. Seeded with today's seven colours. |
 | `finishes` | name, slug, description, sort, active | Matte, Marble… |
 | `finish_colour_slots` | finish_id, position, label | Position 0 is the base colour and always exists. Positions 1..SCC are the named secondary slots. |
-| `finish_effect_slots` | finish_id, position, label, required | Up to SEC per finish. |
-| `finish_effect_options` | slot_id, name, extra_price, sort, active | "Gold leaf", +50. Extra price defaults to 0. |
+| `effects` | name, image_id, sort, active | The effects library. `image_id` points at `media`. Archive (Active off) once any finish uses it. |
+| `finish_effect_slots` | finish_id, position, label | Up to SEC per finish, named by the admin. |
+| `effect_combinations` | finish_id, name, selling_price, cost_price, sort, active | Like a colourway. Selling price is whole rupees per piece; cost price is optional and never read by the storefront. |
+| `effect_combination_effects` | combination_id, slot_id, effect_id | One library effect per slot of the combination. Selling price is whole rupees per piece; cost price is optional and never read by the storefront. |
 | `colourways` | finish_id, name, sort, active | Name is auto-suggested ("Ivory + Plum swirl") and editable. |
 | `colourway_colours` | colourway_id, slot_id, colour_id | One row per slot of that finish. |
 
@@ -179,8 +181,8 @@ A combo hides itself while any of its products is not active or has no price.
 | `addresses` | user_id, label, name, line1, line2, city, state, pin, phone, is_default | The account page already has this screen. |
 | `carts` | user_id or guest_id, status | One active cart per owner. |
 | `cart_bundles` | cart_id, kind, combo_id, qty | Kind: `combo` (admin's) or `custom` (shopper-built). |
-| `cart_items` | cart_id, bundle_id (optional), variant_id, colourway_id, qty | A line is one variant in one colourway with one set of effects. |
-| `cart_item_effects` | cart_item_id, effect_option_id | |
+| `cart_items` | cart_id, bundle_id (optional), variant_id, colourway_id, qty | A line is one variant in one colourway with at most one effect combination. |
+| `cart_items.effect_combination_id` | | Deleting a combination a cart holds is refused; archive it instead. |
 | `wishlist_items` | user_id or guest_id, product_id | |
 
 **Guests.** The first time a visitor adds to cart or wishlist, a Server Action sets an http-only cookie holding a random id. That id is the `guest_id`. On sign-in, guest rows move to the user: matching lines add up (capped at the cart limit), wishlist duplicates drop, and the cookie is cleared. All in one transaction.
@@ -191,7 +193,7 @@ A combo hides itself while any of its products is not active or has no price.
 
 One module, `lib/pricing.ts`, used by the product page, the cart and later checkout. It is the part that gets unit tests.
 
-1. Line unit price = variant price + (sum of chosen effect extras × set size).
+1. Line unit price = variant price + (the chosen effect combination's selling price × set size).
 2. Line total = unit price × quantity.
 3. Admin combo = sum of its lines − the combo's saving.
 4. Shopper-built combo = sum of its lines − the tier discount for its piece count.
@@ -212,19 +214,20 @@ All under `/admin`, shadcn sidebar layout.
 | Products | Table with search and filters. The editor has tabs: **Details** (name, slug, category, tags, description, size, cart limit, status), **Finishes and images** (tick finishes, upload and reorder photos per finish), **Pricing** (grid of finish × set size with price and cost price, margin shown), **Similar products**, **SEO**. |
 | Categories | Head categories with their sub-categories, drag to reorder, image and blurb. |
 | Occasions (tags) | List of occasions such as Diwali and Housewarming, with colour, order, active switch and the products in each. |
-| Finishes | Global limits (SCC, SEC). Finish editor: slot names, effect slots and their options. Colourways per finish with a swatch preview. |
+| Colours / Effects | `/admin/colours`, two tabs (`?tab=effects`). Colours: name and hex. Effects: name and image. Drag to reorder, archive, delete when unused. |
+| Finishes | Global limits (SCC, SEC). Finish editor: colour slot names; effect slot names. Effect combinations per finish (one effect per slot, selling and cost price, margin), like colourways. Colourways per finish with a swatch preview. |
 | Colours | The palette. |
 | Combos | Combo editor (pick 2 to 4 products, default finishes, photos, price) plus the shopper-built switch and the three discount tiers. |
 | Navigation | Sections, groups and links, drag to reorder. |
 | Shoppers | Read-only list. |
 | Settings | Shipping, contact details, default cart limit. |
 
-Deleting is "archive" for anything a cart could point at (products, finishes, colourways, effect options), so carts never break.
+Deleting is "archive" for anything a cart could point at (products, finishes, colourways, effects), so carts never break.
 
 ## 6. Storefront changes
 
 - `lib/products.ts` and `lib/account.ts` are replaced by server-only data functions in `lib/data/` that return only the fields the page needs.
-- **Product page.** Options become: finish, colourway, each effect, set size, quantity. Gallery and price follow the choice. "Ask for a quote" stays for unpriced variants.
+- **Product page.** Options become: finish, colourway, effect (None or one effect combination, with its effects' images and price), set size, quantity. Gallery and price follow the choice. "Ask for a quote" stays for unpriced variants.
 - **Shop and category pages** read from the database. New `/occasions/[slug]` pages list a tag's products.
 - **Combos.** `/combos` lists them, `/combos/[slug]` lets the shopper adjust each piece, `/combos/build` is the shopper-built flow (only when switched on).
 - **Header.** Menus from the navigation tables, live cart count.
@@ -272,7 +275,7 @@ Each one ends with something you can click through.
 | # | Milestone | Delivers | Status |
 | --- | --- | --- | --- |
 | 0 | Foundations | Packages, env, Neon + Drizzle, full schema and first migration, route-group split, Tailwind + shadcn in the admin only, Better Auth (email and password), admin guard, R2 upload component with the resize step. | Built |
-| 1 | Catalogue setup screens | Settings, colours, finishes with slots, effects and colourways, categories, occasions (tags). | Built |
+| 1 | Catalogue setup screens | Settings, colours and the effects library, finishes with slots, effects and colourways, categories, occasions (tags). | Built |
 | 2 | Products | Product editor with finishes, images, price grid, sets, similar products. Seed script imports today's 21 products, 6 categories, 7 colours and 32 photos. | Built |
 | 3 | Storefront on the database | Shop, category, occasion and product pages, home featured row, menus. Caching switched on. | Built |
 | 4 | Sign-in, cart, wishlist | Shopper sign-up, sign-in, email verification, forgot password, change password, guest cart and wishlist, merge on sign-in, live header count, account details and addresses. | Built |

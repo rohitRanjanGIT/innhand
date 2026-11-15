@@ -6,7 +6,8 @@ import QtyStepper from "@/components/QtyStepper";
 import { addToCart } from "@/lib/cart/actions";
 import { whatsappUrl } from "@/lib/whatsapp";
 import { formatPrice } from "@/lib/pricing";
-import { describeChoice, needsNone, resolveChoice, swatchBackground, toLineChoice, withFinish } from "./choice";
+import { describeChoice, resolveChoice, swatchBackground, toLineChoice, withFinish } from "./choice";
+import EffectPicker from "./EffectPicker";
 import { useProductChoice } from "./ProductChoice";
 import styles from "./Product.module.css";
 
@@ -15,7 +16,7 @@ const CONFIRM_MS = 4000;
 type Status = { kind: "added"; text: string } | { kind: "error"; text: string } | null;
 
 /**
- * Finish, colourway, each effect, set size and quantity. Unpriced choices get "Ask for a quote"
+ * Finish, colourway, effect, set size and quantity. Unpriced choices get "Ask for a quote"
  * instead of the cart button. `wish` is the wishlist heart (rendered on the server per visitor).
  */
 export default function ProductOptions({
@@ -107,40 +108,15 @@ export default function ProductOptions({
         </fieldset>
       )}
 
-      {finish?.effectSlots.map((slot) => {
-        const picked = slot.options.find((o) => o.id === choice.effects[slot.id]);
-        const pick = (optionId: string | null) => setChoice({ ...choice, effects: { ...choice.effects, [slot.id]: optionId } });
-        return (
-          <fieldset key={slot.id} className={styles.group}>
-            <legend className={styles.legend}>
-              {slot.label} — <strong>{picked?.name ?? "None"}</strong>
-            </legend>
-            <div className={styles.choices}>
-              {needsNone(slot) && (
-                <label className={styles.choice}>
-                  <input type="radio" name={`effect-${slot.id}`} checked={!picked} onChange={() => pick(null)} />
-                  <span className={styles.pill}>None</span>
-                </label>
-              )}
-              {slot.options.map((o) => (
-                <label key={o.id} className={styles.choice}>
-                  <input
-                    type="radio"
-                    name={`effect-${slot.id}`}
-                    value={o.id}
-                    checked={picked?.id === o.id}
-                    onChange={() => pick(o.id)}
-                  />
-                  <span className={styles.pill}>
-                    {o.name}
-                    {o.extraPrice > 0 && ` +${formatPrice(o.extraPrice)}${product.soldInSets ? " each" : ""}`}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-        );
-      })}
+      {finish && finish.effectOptions.length > 0 && (
+        <EffectPicker
+          options={finish.effectOptions}
+          value={choice.effectCombinationId}
+          perPiece={product.soldInSets}
+          onChange={(effectCombinationId) => setChoice({ ...choice, effectCombinationId })}
+          classes={styles}
+        />
+      )}
 
       {showSets && (
         <fieldset className={styles.group}>

@@ -6,12 +6,12 @@ import { refresh } from "next/cache";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
-import { cartBundles, cartItemEffects, cartItems, carts, wishlistItems } from "@/db/schema";
+import { cartBundles, cartItems, carts, wishlistItems } from "@/db/schema";
 import { getSettings } from "@/lib/data/settings";
 import { getSession } from "@/lib/session";
 import { remainingAllowance } from "@/lib/pricing";
 import type { CartActionResult, LineChoice } from "./contract";
-import { bundleKey, checkEffects, lineKey, maxBundleQty } from "./rules";
+import { bundleKey, checkEffectCombination, lineKey, maxBundleQty } from "./rules";
 import { cartState, countOf, findCartId, itemKey, itemProductId } from "./read";
 import { clearGuestCookie, currentOwner, ensureOwner, readGuestId, type Owner } from "./owner";
 import { mergeGuestIntoUser } from "./merge";
@@ -21,7 +21,7 @@ const id = z.guid();
 const lineChoice = z.object({
   variantId: id,
   colourwayId: id.nullable(),
-  effectOptionIds: z.array(id).max(12),
+  effectCombinationId: id.nullable(),
   qty: z.number().int().min(1).max(MAX_QTY),
 });
 const bundleInput = z.discriminatedUnion("kind", [
@@ -66,9 +66,10 @@ async function resolveChoice(c: LineChoice) {
             columns: { active: true },
             with: {
               colourways: { where: (cw, { eq: e }) => e(cw.active, true), columns: { id: true } },
-              effectSlots: {
-                columns: { id: true, label: true, required: true },
-                with: { options: { where: (o, { eq: e }) => e(o.active, true), columns: { id: true } } },
+              effectCombinations: {
+                where: (ec, { eq: e }) => e(ec.active, true),
+                columns: { id: true },
+                with: { effects: { columns: { slotId: true }, with: { effect: { columns: { active: true } } } } },
               },
             },
           },
@@ -87,17 +88,17 @@ async function resolveChoice(c: LineChoice) {
   else if (!colourwayId) throw new CartError("Choose a colourway.");
   else if (!colourways.includes(colourwayId)) throw new CartError(INVALID);
 
-  const effectError = checkEffects(
-    pf.finish.effectSlots.map((s) => ({ id: s.id, label: s.label, required: s.required, optionIds: s.options.map((o) => o.id) })),
-    c.effectOptionIds,
-  );
+  const offered = pf.finish.effectCombinations
+    .filter((ec) => ec.effects.length > 0 && ec.effects.every((e) => e.effect.active))
+    .map((ec) => ec.id);
+  const effectError = checkEffectCombination(offered, c.effectCombinationId);
   if (effectError) throw new CartError(effectError);
 
-  const effectOptionIds = [...new Set(c.effectOptionIds)];
+  const effectCombinationId = c.effectCombinationId;
   return {
     product: pf.product,
-    line: { variantId: v.id, colourwayId, effectOptionIds, qty: c.qty },
-    key: lineKey(v.id, colourwayId, effectOptionIds),
+    line: { variantId: v.id, colourwayId, effectCombinationId, qty: c.qty },
+    key: lineKey(v.id, colourwayId, effectCombinationId ? [effectCombinationId] : []),
   };
 }
 
@@ -115,17 +116,22 @@ async function getOrCreateCart(owner: Owner) {
 async function insertLine(
   cartId: string,
   bundleId: string | null,
-  l: { variantId: string; colourwayId: string | null; effectOptionIds: string[]; qty: number },
+  l: { variantId: string; colourwayId: string | null; effectCombinationId: string | null; qty: number },
   tx: Pick<typeof db, "insert"> = db,
   /** Bundle pieces get ascending timestamps so the cart lists them in combo order. */
   createdAt?: Date,
 ) {
-  const [row] = await tx
+  await tx
     .insert(cartItems)
-    .values({ cartId, bundleId, variantId: l.variantId, colourwayId: l.colourwayId, qty: l.qty, createdAt })
-    .returning({ id: cartItems.id });
-  if (l.effectOptionIds.length)
-    await tx.insert(cartItemEffects).values(l.effectOptionIds.map((effectOptionId) => ({ cartItemId: row.id, effectOptionId })));
+    .values({
+      cartId,
+      bundleId,
+      variantId: l.variantId,
+      colourwayId: l.colourwayId,
+      effectCombinationId: l.effectCombinationId,
+      qty: l.qty,
+      createdAt,
+    });
 }
 
 /** A loose line. Matching lines add up; the product's total can't pass its cart limit. */

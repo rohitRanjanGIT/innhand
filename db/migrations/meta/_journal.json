@@ -22,6 +22,27 @@
       "when": 1794639894120,
       "tag": "0002_home_content",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794658007266,
+      "tag": "0003_effects_library",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794681203140,
+      "tag": "0004_effect_slots",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794682007717,
+      "tag": "0005_effect_combinations",
+      "breakpoints": true
     }
   ]
 }
